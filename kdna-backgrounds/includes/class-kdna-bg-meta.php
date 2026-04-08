@@ -137,40 +137,11 @@ class KDNA_BG_Meta {
 
     /* ── Preview meta box ── */
     public function render_preview_box( $post ) {
-        $colours   = get_post_meta( $post->ID, '_kdna_bg_colours', true );
-        $speed     = get_post_meta( $post->ID, '_kdna_bg_speed', true );
-        $amplitude = get_post_meta( $post->ID, '_kdna_bg_amplitude', true );
-        $density   = get_post_meta( $post->ID, '_kdna_bg_density', true );
-        $seed      = get_post_meta( $post->ID, '_kdna_bg_seed', true );
-        $darken    = get_post_meta( $post->ID, '_kdna_bg_darken_top', true );
-
-        if ( empty( $colours ) || ! is_array( $colours ) ) {
-            $colours = array( '#0a2463', '#1e6bff', '#3d8bff' );
-        }
-
-        $preview_config = array(
-            'colours'   => $colours,
-            'speed'     => '' !== $speed ? floatval( $speed ) : 5,
-            'amplitude' => '' !== $amplitude ? intval( $amplitude ) : 320,
-            'density'   => '' !== $density ? floatval( $density ) : 6,
-            'seed'      => '' !== $seed ? intval( $seed ) : 5,
-            'darkenTop' => '1' === $darken,
-        );
         ?>
         <div id="kdna-bg-preview-container">
             <canvas id="kdna-bg-preview-canvas"></canvas>
         </div>
-        <p class="description" style="margin-top:8px;text-align:center;"><?php esc_html_e( 'Save/Update the post to refresh this preview.', 'kdna-backgrounds' ); ?></p>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                if (typeof window.KDNAGradientEngine === 'undefined') return;
-                var cfg = <?php echo wp_json_encode( $preview_config ); ?>;
-                var canvas = document.getElementById('kdna-bg-preview-canvas');
-                if (!canvas) return;
-                var gradient = window.KDNAGradientEngine.create(cfg);
-                gradient.init(canvas);
-            });
-        </script>
+        <p class="description" style="margin-top:8px;text-align:center;"><?php esc_html_e( 'Preview updates live as you change settings.', 'kdna-backgrounds' ); ?></p>
         <?php
     }
 
