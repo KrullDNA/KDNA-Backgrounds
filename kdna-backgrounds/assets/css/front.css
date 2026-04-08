@@ -10,6 +10,8 @@
     overflow: hidden;
     pointer-events: none;
     border-radius: inherit;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
     opacity: 0;
     -webkit-animation: kdnaBgFadeIn 0.8s ease forwards;
     animation: kdnaBgFadeIn 0.8s ease forwards;
@@ -31,15 +33,10 @@
     pointer-events: none;
 }
 
+/* Lift container content above the gradient */
 .kdna-bg-active > *:not(.kdna-bg-wrapper) {
     position: relative;
     z-index: 2;
-}
-
-/* Ensure the container itself has overflow visible for content
-   but hidden for the gradient */
-.kdna-bg-active {
-    overflow: hidden;
 }
 
 @-webkit-keyframes kdnaBgFadeIn {

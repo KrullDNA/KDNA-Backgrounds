@@ -12,8 +12,8 @@
     'use strict';
 
     var instances = [];
-    var MAX_RETRIES = 10;
-    var RETRY_DELAY = 200;
+    var MAX_RETRIES = 20;
+    var RETRY_DELAY = 250;
 
     /**
      * Destroy gradient instances whose DOM elements have been removed
@@ -120,7 +120,7 @@
                     } else {
                         gradient.pause();
                     }
-                }, { threshold: 0.01 });
+                }, { threshold: 0.1 });
                 obs.observe(el);
             }
         } catch (err) {
