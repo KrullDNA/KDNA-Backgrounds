@@ -359,10 +359,18 @@
         self.uniforms = uniforms;
         self.densityMul = densityMul;
 
-        /* Resize handler */
+        /* Render first frame synchronously so the canvas is never blank */
+        self.uniforms.u_time.value = self.t;
+        self.minigl.render();
+
+        /* Resize handler (ResizeObserver catches CSS/Elementor breakpoint
+           changes, window resize catches browser chrome and DPR changes) */
+        self._lastW = w; self._lastH = h;
         self._onResize = function () {
             var nw = parent.offsetWidth || 300;
             var nh = parent.offsetHeight || 200;
+            if (nw === self._lastW && nh === self._lastH) return;
+            self._lastW = nw; self._lastH = nh;
             var nd = Math.min(window.devicePixelRatio || 1, 2);
             var npw = Math.round(nw * nd), nph = Math.round(nh * nd);
             self.minigl.setSize(npw, nph);
@@ -373,6 +381,10 @@
             self.mesh.geometry.setSize(npw, nph);
             self.uniforms.u_shadow_power.value = nw < 600 ? 5 : 6;
         };
+        if ('ResizeObserver' in window) {
+            self._resizeObs = new ResizeObserver(self._onResize);
+            self._resizeObs.observe(parent);
+        }
         window.addEventListener('resize', self._onResize);
 
         self.play();
@@ -400,6 +412,7 @@
     };
     KDNAGradient.prototype.destroy = function () {
         this.pause();
+        if (this._resizeObs) this._resizeObs.disconnect();
         if (this._onResize) window.removeEventListener('resize', this._onResize);
     };
 
@@ -421,17 +434,25 @@
             self.blobs.push({
                 x: Math.random(), y: Math.random(),
                 vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
-                radius: 0.3 + Math.random() * 0.4, color: self.colors[b]
+                radius: 0.5 + Math.random() * 0.5, color: self.colors[b]
             });
         }
         var parent = canvas.parentElement;
+        var lastFbW = 0, lastFbH = 0;
         self._onResize = function () {
             var d = Math.min(window.devicePixelRatio || 1, 2);
             var w = parent.offsetWidth || 300, h = parent.offsetHeight || 200;
+            if (w === lastFbW && h === lastFbH) return;
+            lastFbW = w; lastFbH = h;
             canvas.width = Math.round(w * d); canvas.height = Math.round(h * d);
             canvas.style.width = '100%'; canvas.style.height = '100%';
         };
         self._onResize();
+        lastFbW = parent.offsetWidth || 300; lastFbH = parent.offsetHeight || 200;
+        if ('ResizeObserver' in window) {
+            self._resizeObs = new ResizeObserver(self._onResize);
+            self._resizeObs.observe(parent);
+        }
         window.addEventListener('resize', self._onResize);
         self.play();
     };
@@ -450,11 +471,9 @@
             if (b.y < -0.2 || b.y > 1.2) b.vy *= -1;
             var cx = b.x * w, cy = b.y * h, r = b.radius * Math.max(w, h);
             var grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-            grad.addColorStop(0, b.color + 'cc'); grad.addColorStop(1, b.color + '00');
-            ctx.globalCompositeOperation = 'lighter';
+            grad.addColorStop(0, b.color + 'bb'); grad.addColorStop(1, b.color + '00');
             ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
         }
-        ctx.globalCompositeOperation = 'source-over';
         self.t += dt;
         self.raf = requestAnimationFrame(function () { self.animate(); });
     };
@@ -469,6 +488,7 @@
     };
     KDNAGradientFallback.prototype.destroy = function () {
         this.pause();
+        if (this._resizeObs) this._resizeObs.disconnect();
         if (this._onResize) window.removeEventListener('resize', this._onResize);
     };
 

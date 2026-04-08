@@ -153,6 +153,18 @@ function kdna_bg_inject_controls( $element ) {
         'condition' => array( 'kdna_bg_id!' => '' ),
     ) );
 
+    $element->add_control( 'kdna_bg_pause', array(
+        'label' => __( 'Pause Animation', 'kdna-backgrounds' ),
+        'type' => \Elementor\Controls_Manager::SWITCHER,
+        'label_on' => __( 'Yes', 'kdna-backgrounds' ),
+        'label_off' => __( 'No', 'kdna-backgrounds' ),
+        'return_value' => 'yes',
+        'default' => '',
+        'description' => __( 'Freeze the gradient on a single frame.', 'kdna-backgrounds' ),
+        'render_type' => 'template',
+        'condition' => array( 'kdna_bg_id!' => '' ),
+    ) );
+
     $element->end_controls_section();
 }
 
@@ -180,6 +192,11 @@ function kdna_bg_container_before( $element ) {
     $speed = isset( $settings['kdna_bg_speed_override']['size'] ) ? absint( $settings['kdna_bg_speed_override']['size'] ) : 0;
     if ( $speed > 0 ) {
         $element->add_render_attribute( '_wrapper', 'data-kdna-bg-speed', $speed );
+    }
+
+    $pause = ! empty( $settings['kdna_bg_pause'] ) && 'yes' === $settings['kdna_bg_pause'];
+    if ( $pause ) {
+        $element->add_render_attribute( '_wrapper', 'data-kdna-bg-pause', '1' );
     }
 
     KDNA_BG_Render::enqueue_gradient_data( $bg_id );

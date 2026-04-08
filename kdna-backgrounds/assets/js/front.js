@@ -106,9 +106,15 @@
             gradient.init(canvas);
             instances.push({ gradient: gradient, element: el, wrapper: wrapper });
 
+            /* Freeze if the container has pause enabled */
+            if (el.getAttribute('data-kdna-bg-pause') === '1') {
+                gradient.pause();
+            }
+
             /* Pause when off-screen */
             if ('IntersectionObserver' in window) {
                 var obs = new IntersectionObserver(function (entries) {
+                    if (el.getAttribute('data-kdna-bg-pause') === '1') return;
                     if (entries[0].isIntersecting) {
                         gradient.play();
                     } else {
@@ -118,7 +124,6 @@
                 obs.observe(el);
             }
         } catch (err) {
-            console.warn('KDNA Backgrounds: init failed for ID ' + bgId, err);
             /* Clean up on failure */
             if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
             el.removeAttribute('data-kdna-bg-init');
