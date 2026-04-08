@@ -49,6 +49,51 @@ function kdna_bg_frontend_assets() {
     wp_enqueue_script( 'kdna-bg-front', KDNA_BG_URL . 'assets/js/front.js', array( 'kdna-gradient-engine' ), KDNA_BG_VERSION, true );
 }
 
+/* ── Elementor editor: preload all gradient configs into the preview iframe ── */
+add_action( 'elementor/preview/enqueue_scripts', 'kdna_bg_editor_preload_data', 20 );
+
+function kdna_bg_editor_preload_data() {
+    $bgs = get_posts( array(
+        'post_type'      => 'kdna_background',
+        'posts_per_page' => -1,
+        'post_status'    => 'publish',
+    ) );
+
+    if ( empty( $bgs ) ) {
+        return;
+    }
+
+    $all_data = array();
+    foreach ( $bgs as $bg ) {
+        $colours   = get_post_meta( $bg->ID, '_kdna_bg_colours', true );
+        $speed     = get_post_meta( $bg->ID, '_kdna_bg_speed', true );
+        $amplitude = get_post_meta( $bg->ID, '_kdna_bg_amplitude', true );
+        $density   = get_post_meta( $bg->ID, '_kdna_bg_density', true );
+        $seed      = get_post_meta( $bg->ID, '_kdna_bg_seed', true );
+        $darken    = get_post_meta( $bg->ID, '_kdna_bg_darken_top', true );
+
+        if ( empty( $colours ) || ! is_array( $colours ) ) {
+            $colours = array( '#0a2463', '#1e6bff', '#3d8bff' );
+        }
+
+        $all_data[ $bg->ID ] = array(
+            'id'        => $bg->ID,
+            'colours'   => $colours,
+            'speed'     => '' !== $speed ? floatval( $speed ) : 5,
+            'amplitude' => '' !== $amplitude ? intval( $amplitude ) : 100,
+            'density'   => '' !== $density ? floatval( $density ) : 6,
+            'seed'      => '' !== $seed ? intval( $seed ) : 5,
+            'darkenTop' => '1' === $darken,
+        );
+    }
+
+    wp_add_inline_script(
+        'kdna-gradient-engine',
+        'window.kdnaBgData = ' . wp_json_encode( $all_data ) . ';',
+        'before'
+    );
+}
+
 /* ── Elementor: Container controls ── */
 add_action( 'elementor/element/container/section_effects/after_section_end', 'kdna_bg_add_container_controls', 10, 2 );
 add_action( 'elementor/element/container/section_layout/after_section_end', 'kdna_bg_add_container_controls_fb', 10, 2 );

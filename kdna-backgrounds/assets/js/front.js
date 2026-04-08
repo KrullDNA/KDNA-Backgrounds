@@ -16,6 +16,19 @@
     var RETRY_DELAY = 200;
 
     /**
+     * Destroy gradient instances whose DOM elements have been removed
+     * (e.g. after Elementor re-renders a container via render_type template).
+     */
+    function cleanupStale() {
+        for (var i = instances.length - 1; i >= 0; i--) {
+            if (!document.contains(instances[i].element)) {
+                instances[i].gradient.destroy();
+                instances.splice(i, 1);
+            }
+        }
+    }
+
+    /**
      * Initialise a single container
      */
     function initContainer(el, retryCount) {
@@ -117,6 +130,7 @@
      */
     function initAll() {
         if (typeof window.KDNAGradientEngine === 'undefined') return;
+        cleanupStale();
 
         var containers = document.querySelectorAll('[data-kdna-bg-id]');
         for (var i = 0; i < containers.length; i++) {
@@ -144,9 +158,24 @@
         setTimeout(initAll, 100);
     });
 
-    /* ── Elementor editor: listen for frontend init ── */
+    /* ── Elementor editor: hook into the container lifecycle ── */
     if (typeof jQuery !== 'undefined') {
         jQuery(window).on('elementor/frontend/init', function () {
+            /* Use Elementor's element_ready hook so we reinitialise
+               reliably after every render_type:template re-render. */
+            if (typeof elementorFrontend !== 'undefined' && elementorFrontend.hooks) {
+                elementorFrontend.hooks.addAction(
+                    'frontend/element_ready/global',
+                    function ($el) {
+                        var el = $el[0];
+                        if (el && el.getAttribute('data-kdna-bg-id')) {
+                            cleanupStale();
+                            el.removeAttribute('data-kdna-bg-init');
+                            initContainer(el, 0);
+                        }
+                    }
+                );
+            }
             setTimeout(initAll, 500);
             setTimeout(initAll, 1500);
         });
