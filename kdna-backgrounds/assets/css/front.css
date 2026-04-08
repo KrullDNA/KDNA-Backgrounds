@@ -1,0 +1,60 @@
+/* KDNA Backgrounds - Front-end */
+
+.kdna-bg-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    -webkit-animation: kdnaBgFadeIn 0.8s ease forwards;
+    animation: kdnaBgFadeIn 0.8s ease forwards;
+}
+
+.kdna-bg-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.kdna-bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.kdna-bg-active > *:not(.kdna-bg-wrapper) {
+    position: relative;
+    z-index: 2;
+}
+
+/* Ensure the container itself has overflow visible for content
+   but hidden for the gradient */
+.kdna-bg-active {
+    overflow: hidden;
+}
+
+@-webkit-keyframes kdnaBgFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes kdnaBgFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kdna-bg-wrapper {
+        -webkit-animation: none;
+        animation: none;
+        opacity: 1;
+    }
+}

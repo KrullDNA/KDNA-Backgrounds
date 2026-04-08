@@ -1,0 +1,140 @@
+/* ───────────────────────────────────────────
+ * KDNA Backgrounds - Admin Styles
+ * ─────────────────────────────────────────── */
+
+#kdna-bg-colour-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.kdna-bg-colour-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: grab;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.kdna-bg-colour-row:hover {
+    border-color: #2271b1;
+}
+
+.kdna-bg-colour-row.ui-sortable-helper {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: grabbing;
+}
+
+.kdna-bg-colour-row.ui-sortable-placeholder {
+    visibility: visible !important;
+    background: #f0f6fc;
+    border: 2px dashed #2271b1;
+    height: 48px;
+}
+
+.kdna-bg-drag-handle {
+    color: #999;
+    cursor: grab;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.kdna-bg-colour-row:hover .kdna-bg-drag-handle {
+    color: #2271b1;
+}
+
+.kdna-bg-colour-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: #f0f0f1;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 600;
+    color: #50575e;
+    flex-shrink: 0;
+}
+
+.kdna-bg-colour-row .wp-picker-container {
+    flex: 1;
+}
+
+.kdna-bg-remove-colour {
+    color: #b32d2e !important;
+    border-color: #b32d2e !important;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1;
+    padding: 2px 8px !important;
+    min-height: 28px;
+    flex-shrink: 0;
+}
+
+.kdna-bg-remove-colour:hover {
+    background: #b32d2e !important;
+    color: #fff !important;
+}
+
+.kdna-bg-colour-count {
+    display: inline-block;
+    margin-left: 12px;
+    color: #646970;
+    font-style: italic;
+}
+
+/* Settings */
+.kdna-bg-settings-table th {
+    width: 160px;
+    padding-top: 16px;
+}
+
+.kdna-bg-settings-table td {
+    padding-top: 16px;
+}
+
+.kdna-bg-settings-table input[type="range"] {
+    width: 300px;
+    vertical-align: middle;
+}
+
+.kdna-bg-range-value {
+    display: inline-block;
+    min-width: 36px;
+    padding: 2px 8px;
+    margin-left: 8px;
+    background: #f0f6fc;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: #2271b1;
+    vertical-align: middle;
+}
+
+/* Preview */
+#kdna-bg-preview-container {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#kdna-bg-preview-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#kdna-bg-add-colour {
+    margin-top: 8px;
+}
