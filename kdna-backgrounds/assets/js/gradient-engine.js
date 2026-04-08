@@ -252,7 +252,7 @@
 
     var shaderBlend = 'vec3 blendNormal(vec3 base,vec3 blend){return blend;}\nvec3 blendNormal(vec3 base,vec3 blend,float opacity){return(blendNormal(base,blend)*opacity+base*(1.0-opacity));}';
 
-    var shaderVertex = 'varying vec3 v_color;\nvoid main(){\nfloat time=u_time*u_global.noiseSpeed;\nvec2 noiseCoord=resolution*uvNorm*u_global.noiseFreq;\nfloat tilt=resolution.y*0.6*uvNorm.y;\nfloat incline=resolution.x*uvNorm.x/2.0*u_vertDeform.incline;\nfloat offset=resolution.x/2.0*u_vertDeform.incline*mix(u_vertDeform.offsetBottom,u_vertDeform.offsetTop,uv.y);\nfloat noise=snoise(vec3(noiseCoord.x*u_vertDeform.noiseFreq.x+time*u_vertDeform.noiseFlow,noiseCoord.y*u_vertDeform.noiseFreq.y,time*u_vertDeform.noiseSpeed+u_vertDeform.noiseSeed))*u_vertDeform.noiseAmp;\nnoise*=1.0-pow(abs(uvNorm.y),2.0);\nvec3 pos=vec3(position.x,position.y+tilt+incline+noise-offset,position.z);\nif(u_active_colors[0]==1.)v_color=u_baseColor;\nfor(int i=0;i<u_waveLayers_length;i++){\nif(u_active_colors[i+1]==1.){\nWaveLayers layer=u_waveLayers[i];\nfloat n=smoothstep(layer.noiseFloor,layer.noiseCeil,snoise(vec3(noiseCoord.x*layer.noiseFreq.x+time*layer.noiseFlow,noiseCoord.y*layer.noiseFreq.y,time*layer.noiseSpeed+layer.noiseSeed))/2.0+0.5);\nv_color=blendNormal(v_color,layer.color,pow(n,1.5));\n}}\ngl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);\n}';
+    var shaderVertex = 'varying vec3 v_color;\nvoid main(){\nfloat time=u_time*u_global.noiseSpeed;\nvec2 noiseCoord=resolution*uvNorm*u_global.noiseFreq;\nfloat tilt=resolution.y*0.6*uvNorm.y;\nfloat incline=resolution.x*uvNorm.x/2.0*u_vertDeform.incline;\nfloat offset=resolution.x/2.0*u_vertDeform.incline*mix(u_vertDeform.offsetBottom,u_vertDeform.offsetTop,uv.y);\nfloat noise=snoise(vec3(noiseCoord.x*u_vertDeform.noiseFreq.x+time*u_vertDeform.noiseFlow,noiseCoord.y*u_vertDeform.noiseFreq.y,time*u_vertDeform.noiseSpeed+u_vertDeform.noiseSeed))*u_vertDeform.noiseAmp;\nnoise*=1.0-pow(abs(uvNorm.y),2.0);\nvec3 pos=vec3(position.x,position.y+tilt+incline+noise-offset,position.z);\nv_color=u_baseColor;\nfor(int i=0;i<u_waveLayers_length;i++){\nWaveLayers layer=u_waveLayers[i];\nfloat n=smoothstep(layer.noiseFloor,layer.noiseCeil,snoise(vec3(noiseCoord.x*layer.noiseFreq.x+time*layer.noiseFlow,noiseCoord.y*layer.noiseFreq.y,time*layer.noiseSpeed+layer.noiseSeed))/2.0+0.5);\nv_color=blendNormal(v_color,layer.color,pow(n,1.5));\n}\ngl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);\n}';
 
     var shaderFragment = 'varying vec3 v_color;\nvoid main(){\nvec3 color=v_color;\nif(u_darken_top==1.0){vec2 st=gl_FragCoord.xy/resolution.xy;color.g-=pow(st.y+sin(-12.0)*st.x,u_shadow_power)*0.4;}\ngl_FragColor=vec4(color,1.0);\n}';
 
@@ -293,8 +293,6 @@
         var colors = [];
         for (var i = 0; i < cfg.colours.length; i++) colors.push(hexToNorm(cfg.colours[i]));
 
-        var activeColors = [1, 1, 1, 1];
-
         /*
          * Map user-facing values to shader-friendly values:
          * - Speed 1-20 maps to noiseSpeed (animation rate)
@@ -309,7 +307,6 @@
             u_time: new self.minigl.Uniform({ value: 0 }),
             u_shadow_power: new self.minigl.Uniform({ value: w < 600 ? 5 : 6 }),
             u_darken_top: new self.minigl.Uniform({ value: cfg.darkenTop ? 1 : 0 }),
-            u_active_colors: new self.minigl.Uniform({ value: activeColors, type: 'vec4' }),
             u_global: new self.minigl.Uniform({
                 value: {
                     noiseFreq: new self.minigl.Uniform({ value: [14e-5, 29e-5], type: 'vec2' }),
@@ -332,17 +329,17 @@
             u_waveLayers: new self.minigl.Uniform({ value: [], excludeFrom: 'fragment', type: 'array' })
         };
 
-        var maxLayers = Math.min(colors.length - 1, 3);
+        var maxLayers = Math.min(colors.length - 1, 9);
         for (var c = 1; c <= maxLayers; c++) {
             uniforms.u_waveLayers.value.push(new self.minigl.Uniform({
                 value: {
                     color: new self.minigl.Uniform({ value: colors[c], type: 'vec3' }),
-                    noiseFreq: new self.minigl.Uniform({ value: [0.8 + c * 0.15, 0.9 + c * 0.15], type: 'vec2' }),
+                    noiseFreq: new self.minigl.Uniform({ value: [0.8 + c * 0.08, 0.9 + c * 0.08], type: 'vec2' }),
                     noiseSpeed: new self.minigl.Uniform({ value: 11 + 0.3 * c }),
                     noiseFlow: new self.minigl.Uniform({ value: 6.5 + 0.3 * c }),
                     noiseSeed: new self.minigl.Uniform({ value: (cfg.seed || 5) + 10 * c }),
                     noiseFloor: new self.minigl.Uniform({ value: 0.1 }),
-                    noiseCeil: new self.minigl.Uniform({ value: 0.63 + 0.07 * c })
+                    noiseCeil: new self.minigl.Uniform({ value: 0.63 + 0.035 * c })
                 }, type: 'struct'
             }));
         }
