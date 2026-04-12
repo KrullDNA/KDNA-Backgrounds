@@ -33,9 +33,12 @@
     pointer-events: none;
 }
 
-/* Lift container content above the gradient */
+/* Lift container content above the gradient.
+   Elementor containers are display:flex, so z-index works on flex
+   children without position:relative. Avoid position:relative here
+   because it breaks SVG icons and other elements that rely on
+   static positioning. */
 .kdna-bg-active > *:not(.kdna-bg-wrapper) {
-    position: relative;
     z-index: 2;
 }
 
