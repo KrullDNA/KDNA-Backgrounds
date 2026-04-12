@@ -211,15 +211,48 @@ function kdna_bg_head_placeholder() {
 }
 
 /* Output the actual gradient data at wp_footer priority 1,
-   which runs BEFORE enqueued footer scripts (priority 20) */
+   which runs BEFORE enqueued footer scripts (priority 20).
+   Query all published gradients directly rather than relying on the
+   before_render collection chain, which can be broken by page caching
+   plugins (SG Optimizer, WP Rocket, etc.) that serve cached HTML
+   without re-running the PHP rendering hooks. */
 add_action( 'wp_footer', 'kdna_bg_output_data', 1 );
 
 function kdna_bg_output_data() {
-    $data = KDNA_BG_Render::get_all_data();
-    if ( empty( $data ) ) return;
+    $bgs = get_posts( array(
+        'post_type'      => 'kdna_background',
+        'posts_per_page' => -1,
+        'post_status'    => 'publish',
+    ) );
+
+    if ( empty( $bgs ) ) {
+        return;
+    }
+
     echo "<script>\n";
-    foreach ( $data as $id => $config ) {
-        printf( "window.kdnaBgData[%d]=%s;\n", intval( $id ), wp_json_encode( $config ) );
+    foreach ( $bgs as $bg ) {
+        $colours   = get_post_meta( $bg->ID, '_kdna_bg_colours', true );
+        $speed     = get_post_meta( $bg->ID, '_kdna_bg_speed', true );
+        $amplitude = get_post_meta( $bg->ID, '_kdna_bg_amplitude', true );
+        $density   = get_post_meta( $bg->ID, '_kdna_bg_density', true );
+        $seed      = get_post_meta( $bg->ID, '_kdna_bg_seed', true );
+        $darken    = get_post_meta( $bg->ID, '_kdna_bg_darken_top', true );
+
+        if ( empty( $colours ) || ! is_array( $colours ) ) {
+            $colours = array( '#0a2463', '#1e6bff', '#3d8bff' );
+        }
+
+        $config = array(
+            'id'        => $bg->ID,
+            'colours'   => $colours,
+            'speed'     => '' !== $speed ? floatval( $speed ) : 5,
+            'amplitude' => '' !== $amplitude ? intval( $amplitude ) : 100,
+            'density'   => '' !== $density ? floatval( $density ) : 6,
+            'seed'      => '' !== $seed ? intval( $seed ) : 5,
+            'darkenTop' => '1' === $darken,
+        );
+
+        printf( "window.kdnaBgData[%d]=%s;\n", intval( $bg->ID ), wp_json_encode( $config ) );
     }
     echo "</script>\n";
 }
