@@ -236,8 +236,9 @@
         this.commonUniforms.aspectRatio.value = w / h;
     };
     MiniGl.prototype.setOrthographicCamera = function () {
+        var zRange = Math.max(this.width, this.height) * 2;
         this.commonUniforms.projectionMatrix.value = [
-            2 / this.width, 0, 0, 0, 0, 2 / this.height, 0, 0, 0, 0, 2 / (-4000), 0, 0, 0, 0, 1
+            2 / this.width, 0, 0, 0, 0, 2 / this.height, 0, 0, 0, 0, 2 / (-zRange), 0, 0, 0, 0, 1
         ];
     };
     MiniGl.prototype.render = function () {
