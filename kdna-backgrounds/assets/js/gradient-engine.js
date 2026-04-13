@@ -286,6 +286,18 @@
         var ph = Math.round(h * dpr);
 
         self.minigl = new MiniGl(canvas, pw, ph);
+
+        /* Cap canvas to GPU viewport limits so tall/wide containers
+           don't exceed the renderbuffer and render only partially.
+           CSS width/height:100% stretches the capped canvas to fill. */
+        var maxDims = self.minigl.gl.getParameter(self.minigl.gl.MAX_VIEWPORT_DIMS);
+        self._maxDims = maxDims || [8192, 8192];
+        if (pw > self._maxDims[0] || ph > self._maxDims[1]) {
+            pw = Math.min(pw, self._maxDims[0]);
+            ph = Math.min(ph, self._maxDims[1]);
+            self.minigl.setSize(pw, ph);
+        }
+
         canvas.style.width = '100%';
         canvas.style.height = '100%';
         self.minigl.setOrthographicCamera();
@@ -372,7 +384,8 @@
             if (nw === self._lastW && nh === self._lastH) return;
             self._lastW = nw; self._lastH = nh;
             var nd = Math.min(window.devicePixelRatio || 1, 2);
-            var npw = Math.round(nw * nd), nph = Math.round(nh * nd);
+            var npw = Math.min(Math.round(nw * nd), self._maxDims[0]);
+            var nph = Math.min(Math.round(nh * nd), self._maxDims[1]);
             self.minigl.setSize(npw, nph);
             self.minigl.setOrthographicCamera();
             var nx = Math.max(12, Math.ceil(npw * self.densityMul));
