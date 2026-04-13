@@ -39,6 +39,11 @@
         var bgId = parseInt(el.getAttribute('data-kdna-bg-id'), 10);
         if (!bgId) return;
 
+        /* Skip if nested inside another container with the same gradient
+           (prevents redundant instances when settings are copied) */
+        var parentWithSame = el.parentElement && el.parentElement.closest('[data-kdna-bg-id="' + bgId + '"]');
+        if (parentWithSame) return;
+
         /* Wait for data to be available */
         if (!window.kdnaBgData || !window.kdnaBgData[bgId]) {
             if (retryCount < MAX_RETRIES) {
