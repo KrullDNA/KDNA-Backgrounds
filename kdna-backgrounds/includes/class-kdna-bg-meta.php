@@ -35,6 +35,15 @@ class KDNA_BG_Meta {
         );
 
         add_meta_box(
+            'kdna_bg_shapes',
+            __( 'Colour Shapes', 'kdna-backgrounds' ),
+            array( $this, 'render_shapes_box' ),
+            'kdna_background',
+            'normal',
+            'default'
+        );
+
+        add_meta_box(
             'kdna_bg_glass',
             __( 'Glass Refraction', 'kdna-backgrounds' ),
             array( $this, 'render_glass_box' ),
@@ -138,6 +147,58 @@ class KDNA_BG_Meta {
                         <input type="checkbox" id="kdna_bg_darken_top" name="kdna_bg_darken_top" value="1" <?php checked( $darken, '1' ); ?> />
                         <?php esc_html_e( 'Adds a subtle shadow at the top of the canvas', 'kdna-backgrounds' ); ?>
                     </label>
+                </td>
+            </tr>
+        </table>
+        <?php
+    }
+
+    /* ── Colour shapes meta box ── */
+    public function render_shapes_box( $post ) {
+        $flow_amount = get_post_meta( $post->ID, '_kdna_bg_flow_amount', true );
+        $flow_angle  = get_post_meta( $post->ID, '_kdna_bg_flow_angle', true );
+        $definition  = get_post_meta( $post->ID, '_kdna_bg_definition', true );
+        $spread      = get_post_meta( $post->ID, '_kdna_bg_spread', true );
+
+        $flow_amount = '' !== $flow_amount ? floatval( $flow_amount ) : 0;
+        $flow_angle  = '' !== $flow_angle ? floatval( $flow_angle ) : 0;
+        $definition  = '' !== $definition ? floatval( $definition ) : 40;
+        $spread      = '' !== $spread ? floatval( $spread ) : 50;
+        ?>
+        <p class="description" style="margin-bottom:12px;">
+            <?php esc_html_e( 'Control how the colours are distributed. The defaults give the standard even all-over wash. For a moody, flowing look, set colour 1 to near-black so it becomes the dark background, then raise Flow Amount and lower Colour Spread so the other colours sweep across as defined shapes.', 'kdna-backgrounds' ); ?>
+        </p>
+        <table class="form-table kdna-bg-settings-table">
+            <tr>
+                <th><label for="kdna_bg_flow_amount"><?php esc_html_e( 'Flow Amount', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_flow_amount" name="kdna_bg_flow_amount" min="0" max="100" step="1" value="<?php echo esc_attr( $flow_amount ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-flow-amount-val"><?php echo esc_html( $flow_amount ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How much the colours swirl and flow. 0 = round even blobs (the original look), high = strong marbled, flowing forms.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="kdna_bg_flow_angle"><?php esc_html_e( 'Flow Angle', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_flow_angle" name="kdna_bg_flow_angle" min="0" max="360" step="1" value="<?php echo esc_attr( $flow_angle ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-flow-angle-val"><?php echo esc_html( $flow_angle ); ?></span>
+                    <p class="description"><?php esc_html_e( 'Aims the flow direction in degrees (0 to 360), so the sweep can run on a diagonal. Only has an effect when Flow Amount is above 0.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="kdna_bg_definition"><?php esc_html_e( 'Shape Definition', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_definition" name="kdna_bg_definition" min="0" max="100" step="1" value="<?php echo esc_attr( $definition ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-definition-val"><?php echo esc_html( $definition ); ?></span>
+                    <p class="description"><?php esc_html_e( 'Edge softness of each colour. Low = soft all-over wash, high = sharp, defined ribbons of colour against the base.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="kdna_bg_spread"><?php esc_html_e( 'Colour Spread', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_spread" name="kdna_bg_spread" min="0" max="100" step="1" value="<?php echo esc_attr( $spread ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-spread-val"><?php echo esc_html( $spread ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How much of the canvas the colours cover. Low = small concentrated shapes with lots of dark negative space, high = colours fill most of the canvas.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
         </table>
@@ -303,6 +364,19 @@ class KDNA_BG_Meta {
 
         $rib_angle = isset( $_POST['kdna_bg_rib_angle'] ) ? floatval( $_POST['kdna_bg_rib_angle'] ) : 90;
         update_post_meta( $post_id, '_kdna_bg_rib_angle', max( 0, min( 180, $rib_angle ) ) );
+
+        /* Colour shapes */
+        $flow_amount = isset( $_POST['kdna_bg_flow_amount'] ) ? floatval( $_POST['kdna_bg_flow_amount'] ) : 0;
+        update_post_meta( $post_id, '_kdna_bg_flow_amount', max( 0, min( 100, $flow_amount ) ) );
+
+        $flow_angle = isset( $_POST['kdna_bg_flow_angle'] ) ? floatval( $_POST['kdna_bg_flow_angle'] ) : 0;
+        update_post_meta( $post_id, '_kdna_bg_flow_angle', max( 0, min( 360, $flow_angle ) ) );
+
+        $definition = isset( $_POST['kdna_bg_definition'] ) ? floatval( $_POST['kdna_bg_definition'] ) : 40;
+        update_post_meta( $post_id, '_kdna_bg_definition', max( 0, min( 100, $definition ) ) );
+
+        $spread = isset( $_POST['kdna_bg_spread'] ) ? floatval( $_POST['kdna_bg_spread'] ) : 50;
+        update_post_meta( $post_id, '_kdna_bg_spread', max( 0, min( 100, $spread ) ) );
     }
 }
 

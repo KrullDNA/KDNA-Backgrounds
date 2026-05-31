@@ -1,5 +1,5 @@
 /**
- * KDNA Gradient Engine v1.0.3
+ * KDNA Gradient Engine v1.0.4
  * WebGL mesh gradient with optional glass refraction second pass,
  * and a Canvas 2D fallback.
  */
@@ -254,7 +254,7 @@
 
     var shaderBlend = 'vec3 blendNormal(vec3 base,vec3 blend){return blend;}\nvec3 blendNormal(vec3 base,vec3 blend,float opacity){return(blendNormal(base,blend)*opacity+base*(1.0-opacity));}';
 
-    var shaderVertex = 'varying vec3 v_color;\nvoid main(){\nfloat time=u_time*u_global.noiseSpeed;\nvec2 noiseCoord=resolution*uvNorm*u_global.noiseFreq;\nfloat tilt=resolution.y*0.6*uvNorm.y;\nfloat incline=resolution.x*uvNorm.x/2.0*u_vertDeform.incline;\nfloat offset=resolution.x/2.0*u_vertDeform.incline*mix(u_vertDeform.offsetBottom,u_vertDeform.offsetTop,uv.y);\nfloat noise=snoise(vec3(noiseCoord.x*u_vertDeform.noiseFreq.x+time*u_vertDeform.noiseFlow,noiseCoord.y*u_vertDeform.noiseFreq.y,time*u_vertDeform.noiseSpeed+u_vertDeform.noiseSeed))*u_vertDeform.noiseAmp;\nnoise*=1.0-pow(abs(uvNorm.y),2.0);\nvec3 pos=vec3(position.x,position.y+tilt+incline+noise-offset,position.z);\nv_color=u_baseColor;\nfor(int i=0;i<u_waveLayers_length;i++){\nWaveLayers layer=u_waveLayers[i];\nfloat n=smoothstep(layer.noiseFloor,layer.noiseCeil,snoise(vec3(noiseCoord.x*layer.noiseFreq.x+time*layer.noiseFlow,noiseCoord.y*layer.noiseFreq.y,time*layer.noiseSpeed+layer.noiseSeed))/2.0+0.5);\nv_color=blendNormal(v_color,layer.color,pow(n,1.5));\n}\ngl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);\n}';
+    var shaderVertex = 'varying vec3 v_color;\nvoid main(){\nfloat time=u_time*u_global.noiseSpeed;\nvec2 noiseCoord=resolution*uvNorm*u_global.noiseFreq;\nfloat tilt=resolution.y*0.6*uvNorm.y;\nfloat incline=resolution.x*uvNorm.x/2.0*u_vertDeform.incline;\nfloat offset=resolution.x/2.0*u_vertDeform.incline*mix(u_vertDeform.offsetBottom,u_vertDeform.offsetTop,uv.y);\nfloat noise=snoise(vec3(noiseCoord.x*u_vertDeform.noiseFreq.x+time*u_vertDeform.noiseFlow,noiseCoord.y*u_vertDeform.noiseFreq.y,time*u_vertDeform.noiseSpeed+u_vertDeform.noiseSeed))*u_vertDeform.noiseAmp;\nnoise*=1.0-pow(abs(uvNorm.y),2.0);\nvec3 pos=vec3(position.x,position.y+tilt+incline+noise-offset,position.z);\nv_color=u_baseColor;\n/* Domain warp: bend the colour sample coords by a second noise field so the\n   even blobs become flowing, marbled forms. Skipped when Flow Amount is 0. */\nvec2 cCoord=noiseCoord;\nif(u_flowAmount>0.0){\nvec2 wc=noiseCoord*2.0;\nfloat wt=time*u_vertDeform.noiseFlow*0.5;\nfloat wx=snoise(vec3(wc.x+13.0,wc.y+7.0,wt));\nfloat wy=snoise(vec3(wc.x+71.0,wc.y+23.0,wt+5.0));\nfloat ca=cos(u_flowAngle);\nfloat sa=sin(u_flowAngle);\ncCoord+=vec2(wx*ca-wy*sa,wx*sa+wy*ca)*u_flowAmount*0.5;\n}\nfor(int i=0;i<u_waveLayers_length;i++){\nWaveLayers layer=u_waveLayers[i];\n/* Shape Definition narrows/widens the smoothstep gap (sharp vs soft edges).\n   Colour Spread shifts the threshold centre (more vs less dark negative space). */\nfloat center=(layer.noiseFloor+layer.noiseCeil)*0.5-u_spread;\nfloat halfGap=max((layer.noiseCeil-layer.noiseFloor)*0.5*u_definition,0.001);\nfloat cn=snoise(vec3(cCoord.x*layer.noiseFreq.x+time*layer.noiseFlow,cCoord.y*layer.noiseFreq.y,time*layer.noiseSpeed+layer.noiseSeed))/2.0+0.5;\nfloat n=smoothstep(center-halfGap,center+halfGap,cn);\nv_color=blendNormal(v_color,layer.color,pow(n,1.5));\n}\ngl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);\n}';
 
     var shaderFragment = 'varying vec3 v_color;\nvoid main(){\nvec3 color=v_color;\nif(u_darken_top==1.0){vec2 st=gl_FragCoord.xy/resolution.xy;color.g-=pow(st.y+sin(-12.0)*st.x,u_shadow_power)*0.4;}\ngl_FragColor=vec4(color,1.0);\n}';
 
@@ -327,6 +327,20 @@
         var noiseSpeed = (cfg.speed || 5) * 1e-6;
         var shaderAmp = (cfg.amplitude || 320) * 0.1;
 
+        /*
+         * Shape controls (Session 7). Defaults are chosen so the shader
+         * reproduces the original even-wash look exactly:
+         * - flowAmount 0   -> no domain warp (round blobs)
+         * - definition 40  -> gap multiplier 1.0 (original smoothstep gap)
+         * - spread 50      -> threshold bias 0 (original colour coverage)
+         */
+        var flowAmount = (cfg.flowAmount != null ? cfg.flowAmount : 0) / 100;
+        var flowAngle = (cfg.flowAngle || 0) * Math.PI / 180;
+        var defSlider = cfg.definition != null ? cfg.definition : 40;
+        var definitionMul = Math.pow(2, (40 - defSlider) / 18);
+        var spreadSlider = cfg.spread != null ? cfg.spread : 50;
+        var spreadBias = (spreadSlider - 50) / 100 * 0.7;
+
         var uniforms = {
             u_time: new self.minigl.Uniform({ value: 0 }),
             u_shadow_power: new self.minigl.Uniform({ value: w < 600 ? 5 : 6 }),
@@ -350,7 +364,11 @@
                 }, type: 'struct', excludeFrom: 'fragment'
             }),
             u_baseColor: new self.minigl.Uniform({ value: colors[0] || [0, 0, 0], type: 'vec3', excludeFrom: 'fragment' }),
-            u_waveLayers: new self.minigl.Uniform({ value: [], excludeFrom: 'fragment', type: 'array' })
+            u_waveLayers: new self.minigl.Uniform({ value: [], excludeFrom: 'fragment', type: 'array' }),
+            u_flowAmount: new self.minigl.Uniform({ value: flowAmount, excludeFrom: 'fragment' }),
+            u_flowAngle: new self.minigl.Uniform({ value: flowAngle, excludeFrom: 'fragment' }),
+            u_definition: new self.minigl.Uniform({ value: definitionMul, excludeFrom: 'fragment' }),
+            u_spread: new self.minigl.Uniform({ value: spreadBias, excludeFrom: 'fragment' })
         };
 
         var maxLayers = Math.min(colors.length - 1, 9);

@@ -8,6 +8,14 @@
     /**
      * Read every form field and return a gradient config object.
      */
+    /* Read a numeric field, falling back to def only when missing/NaN
+       (a literal 0 is a valid value for the shape sliders, so we cannot
+       use the "|| def" shorthand here). */
+    function numVal(sel, def) {
+        var v = parseFloat($(sel).val());
+        return isNaN(v) ? def : v;
+    }
+
     function buildConfigFromDOM() {
         var colours = [];
         $('#kdna-bg-colour-list .kdna-bg-colour-picker').each(function () {
@@ -24,11 +32,15 @@
             seed:            parseInt($('#kdna_bg_seed').val(), 10) || 5,
             darkenTop:       $('#kdna_bg_darken_top').is(':checked'),
             glassType:       $('#kdna_bg_glass_type').val() || 'none',
-            refractStrength: parseFloat($('#kdna_bg_refract_strength').val()) || 0,
-            refractScale:    parseFloat($('#kdna_bg_refract_scale').val()) || 12,
-            refractSpeed:    parseFloat($('#kdna_bg_refract_speed').val()) || 5,
-            ribCount:        parseInt($('#kdna_bg_rib_count').val(), 10) || 40,
-            ribAngle:        parseFloat($('#kdna_bg_rib_angle').val()) || 90
+            refractStrength: numVal('#kdna_bg_refract_strength', 0),
+            refractScale:    numVal('#kdna_bg_refract_scale', 12),
+            refractSpeed:    numVal('#kdna_bg_refract_speed', 5),
+            ribCount:        numVal('#kdna_bg_rib_count', 40),
+            ribAngle:        numVal('#kdna_bg_rib_angle', 90),
+            flowAmount:      numVal('#kdna_bg_flow_amount', 0),
+            flowAngle:       numVal('#kdna_bg_flow_angle', 0),
+            definition:      numVal('#kdna_bg_definition', 40),
+            spread:          numVal('#kdna_bg_spread', 50)
         };
     }
 
@@ -169,7 +181,11 @@
                 'kdna_bg_refract_scale': '#kdna-bg-refract-scale-val',
                 'kdna_bg_refract_speed': '#kdna-bg-refract-speed-val',
                 'kdna_bg_rib_count': '#kdna-bg-rib-count-val',
-                'kdna_bg_rib_angle': '#kdna-bg-rib-angle-val'
+                'kdna_bg_rib_angle': '#kdna-bg-rib-angle-val',
+                'kdna_bg_flow_amount': '#kdna-bg-flow-amount-val',
+                'kdna_bg_flow_angle': '#kdna-bg-flow-angle-val',
+                'kdna_bg_definition': '#kdna-bg-definition-val',
+                'kdna_bg_spread': '#kdna-bg-spread-val'
             };
             var target = valMap[$(this).attr('id')];
             if (target) $(target).text($(this).val());

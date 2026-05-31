@@ -35,6 +35,12 @@ class KDNA_BG_Render {
         $rib_count       = get_post_meta( $post_id, '_kdna_bg_rib_count', true );
         $rib_angle       = get_post_meta( $post_id, '_kdna_bg_rib_angle', true );
 
+        /* Shape controls */
+        $flow_amount = get_post_meta( $post_id, '_kdna_bg_flow_amount', true );
+        $flow_angle  = get_post_meta( $post_id, '_kdna_bg_flow_angle', true );
+        $definition  = get_post_meta( $post_id, '_kdna_bg_definition', true );
+        $spread      = get_post_meta( $post_id, '_kdna_bg_spread', true );
+
         if ( empty( $colours ) || ! is_array( $colours ) ) {
             $colours = array( '#0a2463', '#1e6bff', '#3d8bff' );
         }
@@ -53,6 +59,10 @@ class KDNA_BG_Render {
             'refractSpeed'    => '' !== $refract_speed ? floatval( $refract_speed ) : 5,
             'ribCount'        => '' !== $rib_count ? intval( $rib_count ) : 40,
             'ribAngle'        => '' !== $rib_angle ? floatval( $rib_angle ) : 90,
+            'flowAmount'      => '' !== $flow_amount ? floatval( $flow_amount ) : 0,
+            'flowAngle'       => '' !== $flow_angle ? floatval( $flow_angle ) : 0,
+            'definition'      => '' !== $definition ? floatval( $definition ) : 40,
+            'spread'          => '' !== $spread ? floatval( $spread ) : 50,
         );
     }
 
