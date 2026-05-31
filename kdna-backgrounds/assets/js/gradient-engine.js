@@ -1,6 +1,7 @@
 /**
- * KDNA Gradient Engine v1.0.2
- * WebGL mesh gradient with Canvas 2D fallback.
+ * KDNA Gradient Engine v1.0.3
+ * WebGL mesh gradient with optional glass refraction second pass,
+ * and a Canvas 2D fallback.
  */
 
 (function (window) {
@@ -257,6 +258,16 @@
 
     var shaderFragment = 'varying vec3 v_color;\nvoid main(){\nvec3 color=v_color;\nif(u_darken_top==1.0){vec2 st=gl_FragCoord.xy/resolution.xy;color.g-=pow(st.y+sin(-12.0)*st.x,u_shadow_power)*0.4;}\ngl_FragColor=vec4(color,1.0);\n}';
 
+    /* ── Glass refraction (second pass) shaders ──
+     * A full-screen quad samples the rendered gradient texture with a
+     * displacement offset. Type 1 (Liquid) uses simplex noise on its own
+     * seed so the ripples move independently of the colour animation.
+     * Type 2 (Fluted) uses a periodic sine wave rotated to a precise angle
+     * so the ribs sit at exactly the chosen orientation. */
+    var shaderRefractVertex = 'precision highp float;\nattribute vec2 a_pos;\nvarying vec2 v_uv;\nvoid main(){v_uv=a_pos*0.5+0.5;gl_Position=vec4(a_pos,0.0,1.0);}';
+
+    var shaderRefractMain = 'varying vec2 v_uv;\nuniform sampler2D u_texture;\nuniform float u_aspect;\nuniform float u_time;\nuniform int u_glassType;\nuniform float u_strength;\nuniform float u_scale;\nuniform float u_rippleSpeed;\nuniform float u_ribCount;\nuniform float u_ribAngle;\nuniform float u_seed;\nvoid main(){\nvec2 uv=v_uv;\nvec2 disp=vec2(0.0);\nif(u_glassType==1){\nfloat freq=mix(18.0,1.5,clamp((u_scale-1.0)/49.0,0.0,1.0));\nvec2 nc=vec2(uv.x*u_aspect,uv.y)*freq;\nfloat t=u_time*u_rippleSpeed*0.00005;\nfloat nx=snoise(vec3(nc+u_seed,t));\nfloat ny=snoise(vec3(nc+u_seed+37.3,t+19.1));\ndisp=vec2(nx,ny)*u_strength;\n}else if(u_glassType==2){\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat ca=cos(u_ribAngle);\nfloat sa=sin(u_ribAngle);\nfloat coord=p.x*sa+p.y*ca;\nvec2 dir=vec2(sa,ca);\nfloat ribs=sin(coord*u_ribCount*6.2831853);\nvec2 d=dir*ribs*u_strength;\ndisp=vec2(d.x/u_aspect,d.y);\n}\ngl_FragColor=texture2D(u_texture,clamp(uv+disp,0.0,1.0));\n}';
+
     /* ═══════════════════════════════════════
      * KDNAGradient - WebGL
      * ═══════════════════════════════════════ */
@@ -372,9 +383,14 @@
         self.uniforms = uniforms;
         self.densityMul = densityMul;
 
+        /* Optional second pass: glass refraction. Skipped entirely when
+           the glass type is None or the refraction strength is 0, so there
+           is zero performance cost when the effect is off. */
+        self._initRefraction(cfg, pw, ph);
+
         /* Render first frame synchronously so the canvas is never blank */
         self.uniforms.u_time.value = self.t;
-        self.minigl.render();
+        self.renderFrame();
 
         /* Resize handler (ResizeObserver catches CSS/Elementor breakpoint
            changes, window resize catches browser chrome and DPR changes) */
@@ -394,6 +410,7 @@
             self.mesh.geometry.setTopology(nx, ny);
             self.mesh.geometry.setSize(npw, nph);
             self.uniforms.u_shadow_power.value = nw < 600 ? 5 : 6;
+            if (self.refractActive) self._resizeRefraction(npw, nph);
         };
         if ('ResizeObserver' in window) {
             self._resizeObs = new ResizeObserver(self._onResize);
@@ -411,7 +428,7 @@
         self.t += Math.min(ts - self.last, 1000 / 15);
         self.last = ts;
         self.uniforms.u_time.value = self.t;
-        self.minigl.render();
+        self.renderFrame();
         self.raf = requestAnimationFrame(function (t) { self.animate(t); });
     };
 
@@ -428,10 +445,143 @@
         this.pause();
         if (this._resizeObs) this._resizeObs.disconnect();
         if (this._onResize) window.removeEventListener('resize', this._onResize);
+        if (this.refractActive && this.minigl) {
+            var gl = this.minigl.gl;
+            if (this._fbo) gl.deleteFramebuffer(this._fbo);
+            if (this._fboTex) gl.deleteTexture(this._fboTex);
+            if (this._quadBuf) gl.deleteBuffer(this._quadBuf);
+            if (this._postProg) gl.deleteProgram(this._postProg);
+            this.refractActive = false;
+        }
+    };
+
+    /* ── Glass refraction second pass ── */
+
+    /**
+     * Set up the off-screen framebuffer and the refraction program.
+     * Does nothing (and leaves refractActive false) when the effect is off,
+     * so renderFrame falls straight through to a single direct draw.
+     */
+    KDNAGradient.prototype._initRefraction = function (cfg, pw, ph) {
+        var self = this;
+        var type = cfg.glassType || 'none';
+        var strength = parseFloat(cfg.refractStrength) || 0;
+
+        self.refractActive = ( type === 'liquid' || type === 'fluted' ) && strength > 0;
+        if (!self.refractActive) return;
+
+        var gl = self.minigl.gl;
+        self._glTypeNum = type === 'liquid' ? 1 : 2;
+
+        /* Map admin values to shader-friendly values */
+        self._rUniforms = {
+            strength:    strength * 0.0015,
+            scale:       parseFloat(cfg.refractScale) || 12,
+            rippleSpeed: parseFloat(cfg.refractSpeed) || 5,
+            ribCount:    parseFloat(cfg.ribCount) || 40,
+            ribAngle:    (parseFloat(cfg.ribAngle) || 0) * Math.PI / 180,
+            seed:        (cfg.seed || 5) * 3.7
+        };
+
+        /* Compile the post-processing program */
+        function compile(glType, src) {
+            var s = gl.createShader(glType);
+            gl.shaderSource(s, src); gl.compileShader(s);
+            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error('KDNA Refract Shader:', gl.getShaderInfoLog(s));
+            return s;
+        }
+        var fragSrc = 'precision highp float;\n' + shaderNoise + '\n' + shaderRefractMain;
+        var vsh = compile(gl.VERTEX_SHADER, shaderRefractVertex);
+        var fsh = compile(gl.FRAGMENT_SHADER, fragSrc);
+        var prog = gl.createProgram();
+        gl.attachShader(prog, vsh); gl.attachShader(prog, fsh);
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) console.error('KDNA Refract Program:', gl.getProgramInfoLog(prog));
+        self._postProg = prog;
+        self._postLoc = {
+            pos:         gl.getAttribLocation(prog, 'a_pos'),
+            texture:     gl.getUniformLocation(prog, 'u_texture'),
+            aspect:      gl.getUniformLocation(prog, 'u_aspect'),
+            time:        gl.getUniformLocation(prog, 'u_time'),
+            glassType:   gl.getUniformLocation(prog, 'u_glassType'),
+            strength:    gl.getUniformLocation(prog, 'u_strength'),
+            scale:       gl.getUniformLocation(prog, 'u_scale'),
+            rippleSpeed: gl.getUniformLocation(prog, 'u_rippleSpeed'),
+            ribCount:    gl.getUniformLocation(prog, 'u_ribCount'),
+            ribAngle:    gl.getUniformLocation(prog, 'u_ribAngle'),
+            seed:        gl.getUniformLocation(prog, 'u_seed')
+        };
+
+        /* Full-screen quad (triangle strip) in clip space */
+        self._quadBuf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, self._quadBuf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+        /* Off-screen target the gradient renders into */
+        self._fboTex = gl.createTexture();
+        self._fbo = gl.createFramebuffer();
+        self._resizeRefraction(pw, ph);
+    };
+
+    /**
+     * (Re)allocate the framebuffer texture at the given pixel size.
+     * CLAMP_TO_EDGE means displaced samples near the edge extend the border
+     * colour rather than showing a transparent gap.
+     */
+    KDNAGradient.prototype._resizeRefraction = function (pw, ph) {
+        var self = this, gl = self.minigl.gl;
+        self._postW = pw; self._postH = ph;
+        gl.bindTexture(gl.TEXTURE_2D, self._fboTex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, pw, ph, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, self._fbo);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, self._fboTex, 0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    };
+
+    /**
+     * Draw one frame. With refraction off this is a single direct render
+     * (identical to before). With it on, the gradient is rendered to the
+     * framebuffer texture and then warped onto the canvas by the quad.
+     */
+    KDNAGradient.prototype.renderFrame = function () {
+        var self = this;
+        if (!self.refractActive) { self.minigl.render(); return; }
+        var gl = self.minigl.gl;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, self._fbo);
+        gl.viewport(0, 0, self._postW, self._postH);
+        self.minigl.render();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.viewport(0, 0, self._postW, self._postH);
+
+        var p = self._postProg, u = self._postLoc, r = self._rUniforms;
+        gl.useProgram(p);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, self._fboTex);
+        gl.uniform1i(u.texture, 0);
+        gl.uniform1f(u.aspect, self._postW / self._postH);
+        gl.uniform1f(u.time, self.t);
+        gl.uniform1i(u.glassType, self._glTypeNum);
+        gl.uniform1f(u.strength, r.strength);
+        gl.uniform1f(u.scale, r.scale);
+        gl.uniform1f(u.rippleSpeed, r.rippleSpeed);
+        gl.uniform1f(u.ribCount, r.ribCount);
+        gl.uniform1f(u.ribAngle, r.ribAngle);
+        gl.uniform1f(u.seed, r.seed);
+        gl.bindBuffer(gl.ARRAY_BUFFER, self._quadBuf);
+        gl.enableVertexAttribArray(u.pos);
+        gl.vertexAttribPointer(u.pos, 2, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
 
     /* ═══════════════════════════════════════
      * Canvas 2D Fallback
+     * Refraction is gracefully skipped here: the moving blobs already
+     * approximate the gradient, and a per-pixel warp is not affordable
+     * without WebGL. Browsers without WebGL are rare and low-powered.
      * ═══════════════════════════════════════ */
     function KDNAGradientFallback(config) {
         this.config = config; this.playing = false; this.t = 0; this.raf = null;

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: KDNA Backgrounds
  * Description: Animated mesh gradient backgrounds using WebGL with Canvas 2D fallback. Create reusable gradient presets and apply them to any Elementor container via the Advanced tab.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: KDNA
  * Text Domain: kdna-backgrounds
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'KDNA_BG_VERSION', '1.0.2' );
+define( 'KDNA_BG_VERSION', '1.0.3' );
 define( 'KDNA_BG_PATH', plugin_dir_path( __FILE__ ) );
 define( 'KDNA_BG_URL', plugin_dir_url( __FILE__ ) );
 
@@ -65,26 +65,7 @@ function kdna_bg_editor_preload_data() {
 
     $all_data = array();
     foreach ( $bgs as $bg ) {
-        $colours   = get_post_meta( $bg->ID, '_kdna_bg_colours', true );
-        $speed     = get_post_meta( $bg->ID, '_kdna_bg_speed', true );
-        $amplitude = get_post_meta( $bg->ID, '_kdna_bg_amplitude', true );
-        $density   = get_post_meta( $bg->ID, '_kdna_bg_density', true );
-        $seed      = get_post_meta( $bg->ID, '_kdna_bg_seed', true );
-        $darken    = get_post_meta( $bg->ID, '_kdna_bg_darken_top', true );
-
-        if ( empty( $colours ) || ! is_array( $colours ) ) {
-            $colours = array( '#0a2463', '#1e6bff', '#3d8bff' );
-        }
-
-        $all_data[ $bg->ID ] = array(
-            'id'        => $bg->ID,
-            'colours'   => $colours,
-            'speed'     => '' !== $speed ? floatval( $speed ) : 5,
-            'amplitude' => '' !== $amplitude ? intval( $amplitude ) : 100,
-            'density'   => '' !== $density ? floatval( $density ) : 6,
-            'seed'      => '' !== $seed ? intval( $seed ) : 5,
-            'darkenTop' => '1' === $darken,
-        );
+        $all_data[ $bg->ID ] = KDNA_BG_Render::build_config( $bg->ID );
     }
 
     wp_add_inline_script(
@@ -231,27 +212,7 @@ function kdna_bg_output_data() {
 
     echo "<script>\n";
     foreach ( $bgs as $bg ) {
-        $colours   = get_post_meta( $bg->ID, '_kdna_bg_colours', true );
-        $speed     = get_post_meta( $bg->ID, '_kdna_bg_speed', true );
-        $amplitude = get_post_meta( $bg->ID, '_kdna_bg_amplitude', true );
-        $density   = get_post_meta( $bg->ID, '_kdna_bg_density', true );
-        $seed      = get_post_meta( $bg->ID, '_kdna_bg_seed', true );
-        $darken    = get_post_meta( $bg->ID, '_kdna_bg_darken_top', true );
-
-        if ( empty( $colours ) || ! is_array( $colours ) ) {
-            $colours = array( '#0a2463', '#1e6bff', '#3d8bff' );
-        }
-
-        $config = array(
-            'id'        => $bg->ID,
-            'colours'   => $colours,
-            'speed'     => '' !== $speed ? floatval( $speed ) : 5,
-            'amplitude' => '' !== $amplitude ? intval( $amplitude ) : 100,
-            'density'   => '' !== $density ? floatval( $density ) : 6,
-            'seed'      => '' !== $seed ? intval( $seed ) : 5,
-            'darkenTop' => '1' === $darken,
-        );
-
+        $config = KDNA_BG_Render::build_config( $bg->ID );
         printf( "window.kdnaBgData[%d]=%s;\n", intval( $bg->ID ), wp_json_encode( $config ) );
     }
     echo "</script>\n";

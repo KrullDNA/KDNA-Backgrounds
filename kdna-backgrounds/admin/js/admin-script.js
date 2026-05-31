@@ -17,13 +17,32 @@
         if (colours.length < 2) colours = ['#0a2463', '#1e6bff', '#3d8bff'];
 
         return {
-            colours:   colours,
-            speed:     parseFloat($('#kdna_bg_speed').val()) || 5,
-            amplitude: parseInt($('#kdna_bg_amplitude').val(), 10) || 320,
-            density:   parseFloat($('#kdna_bg_density').val()) || 6,
-            seed:      parseInt($('#kdna_bg_seed').val(), 10) || 5,
-            darkenTop: $('#kdna_bg_darken_top').is(':checked')
+            colours:         colours,
+            speed:           parseFloat($('#kdna_bg_speed').val()) || 5,
+            amplitude:       parseInt($('#kdna_bg_amplitude').val(), 10) || 320,
+            density:         parseFloat($('#kdna_bg_density').val()) || 6,
+            seed:            parseInt($('#kdna_bg_seed').val(), 10) || 5,
+            darkenTop:       $('#kdna_bg_darken_top').is(':checked'),
+            glassType:       $('#kdna_bg_glass_type').val() || 'none',
+            refractStrength: parseFloat($('#kdna_bg_refract_strength').val()) || 0,
+            refractScale:    parseFloat($('#kdna_bg_refract_scale').val()) || 12,
+            refractSpeed:    parseFloat($('#kdna_bg_refract_speed').val()) || 5,
+            ribCount:        parseInt($('#kdna_bg_rib_count').val(), 10) || 40,
+            ribAngle:        parseFloat($('#kdna_bg_rib_angle').val()) || 90
         };
+    }
+
+    /**
+     * Show only the controls relevant to the selected glass type.
+     * Each glass row declares which type(s) it belongs to via
+     * data-glass-group (space separated, e.g. "liquid fluted").
+     */
+    function updateGlassVisibility() {
+        var type = $('#kdna_bg_glass_type').val() || 'none';
+        $('.kdna-bg-glass-row').each(function () {
+            var groups = ($(this).attr('data-glass-group') || '').split(' ');
+            $(this).toggle(type !== 'none' && groups.indexOf(type) !== -1);
+        });
     }
 
     /**
@@ -145,7 +164,12 @@
             var valMap = {
                 'kdna_bg_speed': '#kdna-bg-speed-val',
                 'kdna_bg_amplitude': '#kdna-bg-amp-val',
-                'kdna_bg_density': '#kdna-bg-density-val'
+                'kdna_bg_density': '#kdna-bg-density-val',
+                'kdna_bg_refract_strength': '#kdna-bg-refract-strength-val',
+                'kdna_bg_refract_scale': '#kdna-bg-refract-scale-val',
+                'kdna_bg_refract_speed': '#kdna-bg-refract-speed-val',
+                'kdna_bg_rib_count': '#kdna-bg-rib-count-val',
+                'kdna_bg_rib_angle': '#kdna-bg-rib-angle-val'
             };
             var target = valMap[$(this).attr('id')];
             if (target) $(target).text($(this).val());
@@ -155,6 +179,13 @@
         /* Seed + darken-top */
         $('#kdna_bg_seed').on('input', refreshPreview);
         $('#kdna_bg_darken_top').on('change', refreshPreview);
+
+        /* Glass type: toggle relevant controls + refresh */
+        $('#kdna_bg_glass_type').on('change', function () {
+            updateGlassVisibility();
+            refreshPreview();
+        });
+        updateGlassVisibility();
 
         updateNumbering();
 
