@@ -176,7 +176,7 @@ class KDNA_BG_Meta {
         $spread      = '' !== $spread ? floatval( $spread ) : 50;
         ?>
         <p class="description" style="margin-bottom:12px;">
-            <?php esc_html_e( 'Control how the colours are distributed. Colour 1 is always the background. In Wash style the other colours blend all over; in Concentric style colour 1 stays as the dark background and the other colours form animated rings that radiate from one or more wandering centres (set colour 1 to near-black for the moody billboard look). Flow Amount swirls the shapes, Flow Angle aims them, Colour Spread sets how much they cover, and Shape Definition sets the edge softness.', 'kdna-backgrounds' ); ?>
+            <?php esc_html_e( 'Control how the colours are distributed. Colour 1 is always the background. In Wash style the other colours blend all over; in Concentric style colour 1 stays as the dark background and the other colours blend through smooth concentric rings that radiate outward from the centre in a continuous loop (set colour 1 to near-black for the moody billboard look). Flow Amount adds a gentle swirl, Flow Angle aims the elongation, Colour Spread sets the size, and Shape Definition sets the outer fade.', 'kdna-backgrounds' ); ?>
         </p>
         <table class="form-table kdna-bg-settings-table">
             <tr>
@@ -212,15 +212,15 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_radiate" name="kdna_bg_radiate" min="0" max="100" step="1" value="<?php echo esc_attr( $radiate ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-radiate-val"><?php echo esc_html( $radiate ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How fast the rings radiate outward from the centre. Tuned to a calm range so it is never frantic; this also drives the wandering centres, the breathing stretch, and the shuffling colours. 0 = frozen still. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How fast the colours travel outward from the centre in a continuous loop. Tuned to a slow, smooth range so it is never frantic; this also drives the gentle breathing of the rings. 0 = still. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="concentric">
-                <th><label for="kdna_bg_ring_count"><?php esc_html_e( 'Shape Count', 'kdna-backgrounds' ); ?></label></th>
+                <th><label for="kdna_bg_ring_count"><?php esc_html_e( 'Ring Count', 'kdna-backgrounds' ); ?></label></th>
                 <td>
-                    <input type="range" id="kdna_bg_ring_count" name="kdna_bg_ring_count" min="1" max="5" step="1" value="<?php echo esc_attr( $ring_count ); ?>" />
+                    <input type="range" id="kdna_bg_ring_count" name="kdna_bg_ring_count" min="1" max="8" step="1" value="<?php echo esc_attr( $ring_count ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-ring-count-val"><?php echo esc_html( $ring_count ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How many separate concentric ring-clusters appear at once. The first sits near the middle; any extras drift around the canvas (some partly off-edge, like the reference) with randomised size, angle and stretch. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How many concentric colour rings span the shape at once. Low = a few big, broad rings; high = many tighter rings. The colours blend smoothly from one ring into the next. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr>
@@ -429,7 +429,7 @@ class KDNA_BG_Meta {
         update_post_meta( $post_id, '_kdna_bg_dominant_bg', isset( $_POST['kdna_bg_dominant_bg'] ) ? '1' : '0' );
 
         update_post_meta( $post_id, '_kdna_bg_radiate', isset( $_POST['kdna_bg_radiate'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_radiate'] ) ) ) : 45 );
-        update_post_meta( $post_id, '_kdna_bg_ring_count', isset( $_POST['kdna_bg_ring_count'] ) ? max( 1, min( 5, floatval( $_POST['kdna_bg_ring_count'] ) ) ) : 2 );
+        update_post_meta( $post_id, '_kdna_bg_ring_count', isset( $_POST['kdna_bg_ring_count'] ) ? max( 1, min( 8, floatval( $_POST['kdna_bg_ring_count'] ) ) ) : 2 );
 
         $stretch = isset( $_POST['kdna_bg_stretch'] ) ? floatval( $_POST['kdna_bg_stretch'] ) : 0;
         update_post_meta( $post_id, '_kdna_bg_stretch', max( 0, min( 100, $stretch ) ) );
