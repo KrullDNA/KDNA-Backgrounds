@@ -36,8 +36,9 @@ class KDNA_BG_Render {
         $rib_angle       = get_post_meta( $post_id, '_kdna_bg_rib_angle', true );
 
         /* Shape controls */
-        $shape_style = get_post_meta( $post_id, '_kdna_bg_shape_style', true );
-        $stretch     = get_post_meta( $post_id, '_kdna_bg_stretch', true );
+        $shape_style  = get_post_meta( $post_id, '_kdna_bg_shape_style', true );
+        $dominant_bg  = get_post_meta( $post_id, '_kdna_bg_dominant_bg', true );
+        $stretch      = get_post_meta( $post_id, '_kdna_bg_stretch', true );
         $flow_amount = get_post_meta( $post_id, '_kdna_bg_flow_amount', true );
         $flow_angle  = get_post_meta( $post_id, '_kdna_bg_flow_angle', true );
         $definition  = get_post_meta( $post_id, '_kdna_bg_definition', true );
@@ -62,6 +63,7 @@ class KDNA_BG_Render {
             'ribCount'        => '' !== $rib_count ? intval( $rib_count ) : 40,
             'ribAngle'        => '' !== $rib_angle ? floatval( $rib_angle ) : 90,
             'shapeStyle'      => '' !== $shape_style ? $shape_style : 'wash',
+            'dominantBg'      => '1' === $dominant_bg,
             'stretch'         => '' !== $stretch ? floatval( $stretch ) : 0,
             'flowAmount'      => '' !== $flow_amount ? floatval( $flow_amount ) : 0,
             'flowAngle'       => '' !== $flow_angle ? floatval( $flow_angle ) : 0,

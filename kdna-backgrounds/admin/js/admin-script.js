@@ -38,6 +38,7 @@
             ribCount:        numVal('#kdna_bg_rib_count', 40),
             ribAngle:        numVal('#kdna_bg_rib_angle', 90),
             shapeStyle:      $('#kdna_bg_shape_style').val() || 'wash',
+            dominantBg:      $('#kdna_bg_dominant_bg').is(':checked'),
             stretch:         numVal('#kdna_bg_stretch', 0),
             flowAmount:      numVal('#kdna_bg_flow_amount', 0),
             flowAngle:       numVal('#kdna_bg_flow_angle', 0),
@@ -207,9 +208,10 @@
             refreshPreview();
         });
 
-        /* Seed + darken-top */
+        /* Seed + darken-top + dominant background */
         $('#kdna_bg_seed').on('input', refreshPreview);
         $('#kdna_bg_darken_top').on('change', refreshPreview);
+        $('#kdna_bg_dominant_bg').on('change', refreshPreview);
 
         /* Glass type: toggle relevant controls + refresh */
         $('#kdna_bg_glass_type').on('change', function () {
