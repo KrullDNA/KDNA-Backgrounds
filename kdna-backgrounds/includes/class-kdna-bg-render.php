@@ -41,6 +41,9 @@ class KDNA_BG_Render {
         $stretch      = get_post_meta( $post_id, '_kdna_bg_stretch', true );
         $radiate      = get_post_meta( $post_id, '_kdna_bg_radiate', true );
         $ring_count   = get_post_meta( $post_id, '_kdna_bg_ring_count', true );
+        $shape_count  = get_post_meta( $post_id, '_kdna_bg_shape_count', true );
+        $color_blend  = get_post_meta( $post_id, '_kdna_bg_color_blend', true );
+        $drift        = get_post_meta( $post_id, '_kdna_bg_drift', true );
         $flow_amount = get_post_meta( $post_id, '_kdna_bg_flow_amount', true );
         $flow_angle  = get_post_meta( $post_id, '_kdna_bg_flow_angle', true );
         $definition  = get_post_meta( $post_id, '_kdna_bg_definition', true );
@@ -68,7 +71,10 @@ class KDNA_BG_Render {
             'dominantBg'      => '1' === $dominant_bg,
             'stretch'         => '' !== $stretch ? floatval( $stretch ) : 0,
             'radiateSpeed'    => '' !== $radiate ? floatval( $radiate ) : 45,
-            'ringCount'       => '' !== $ring_count ? floatval( $ring_count ) : 2,
+            'ringCount'       => '' !== $ring_count ? floatval( $ring_count ) : 1,
+            'shapeCount'      => '' !== $shape_count ? floatval( $shape_count ) : 1,
+            'colorBlend'      => '' !== $color_blend ? floatval( $color_blend ) : 70,
+            'drift'           => '' !== $drift ? floatval( $drift ) : 40,
             'flowAmount'      => '' !== $flow_amount ? floatval( $flow_amount ) : 0,
             'flowAngle'       => '' !== $flow_angle ? floatval( $flow_angle ) : 0,
             'definition'      => '' !== $definition ? floatval( $definition ) : 40,
