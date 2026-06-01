@@ -37,11 +37,25 @@
             refractSpeed:    numVal('#kdna_bg_refract_speed', 5),
             ribCount:        numVal('#kdna_bg_rib_count', 40),
             ribAngle:        numVal('#kdna_bg_rib_angle', 90),
+            shapeStyle:      $('#kdna_bg_shape_style').val() || 'wash',
+            stretch:         numVal('#kdna_bg_stretch', 0),
             flowAmount:      numVal('#kdna_bg_flow_amount', 0),
             flowAngle:       numVal('#kdna_bg_flow_angle', 0),
             definition:      numVal('#kdna_bg_definition', 40),
             spread:          numVal('#kdna_bg_spread', 50)
         };
+    }
+
+    /**
+     * Show only the shape controls relevant to the selected shape style
+     * (the Stretch control applies to Concentric style only).
+     */
+    function updateShapeVisibility() {
+        var style = $('#kdna_bg_shape_style').val() || 'wash';
+        $('.kdna-bg-shape-row').each(function () {
+            var groups = ($(this).attr('data-shape-group') || '').split(' ');
+            $(this).toggle(groups.indexOf(style) !== -1);
+        });
     }
 
     /**
@@ -185,7 +199,8 @@
                 'kdna_bg_flow_amount': '#kdna-bg-flow-amount-val',
                 'kdna_bg_flow_angle': '#kdna-bg-flow-angle-val',
                 'kdna_bg_definition': '#kdna-bg-definition-val',
-                'kdna_bg_spread': '#kdna-bg-spread-val'
+                'kdna_bg_spread': '#kdna-bg-spread-val',
+                'kdna_bg_stretch': '#kdna-bg-stretch-val'
             };
             var target = valMap[$(this).attr('id')];
             if (target) $(target).text($(this).val());
@@ -202,6 +217,13 @@
             refreshPreview();
         });
         updateGlassVisibility();
+
+        /* Shape style: toggle relevant controls + refresh */
+        $('#kdna_bg_shape_style').on('change', function () {
+            updateShapeVisibility();
+            refreshPreview();
+        });
+        updateShapeVisibility();
 
         updateNumbering();
 

@@ -155,20 +155,42 @@ class KDNA_BG_Meta {
 
     /* ── Colour shapes meta box ── */
     public function render_shapes_box( $post ) {
+        $shape_style = get_post_meta( $post->ID, '_kdna_bg_shape_style', true );
+        $stretch     = get_post_meta( $post->ID, '_kdna_bg_stretch', true );
         $flow_amount = get_post_meta( $post->ID, '_kdna_bg_flow_amount', true );
         $flow_angle  = get_post_meta( $post->ID, '_kdna_bg_flow_angle', true );
         $definition  = get_post_meta( $post->ID, '_kdna_bg_definition', true );
         $spread      = get_post_meta( $post->ID, '_kdna_bg_spread', true );
 
+        $shape_style = '' !== $shape_style ? $shape_style : 'wash';
+        $stretch     = '' !== $stretch ? floatval( $stretch ) : 0;
         $flow_amount = '' !== $flow_amount ? floatval( $flow_amount ) : 0;
         $flow_angle  = '' !== $flow_angle ? floatval( $flow_angle ) : 0;
         $definition  = '' !== $definition ? floatval( $definition ) : 40;
         $spread      = '' !== $spread ? floatval( $spread ) : 50;
         ?>
         <p class="description" style="margin-bottom:12px;">
-            <?php esc_html_e( 'Control how the colours are distributed. The defaults give the standard even all-over wash. For a moody, flowing look, set colour 1 to near-black so it becomes the dark background, then raise Flow Amount and lower Colour Spread so the other colours sweep across as defined shapes.', 'kdna-backgrounds' ); ?>
+            <?php esc_html_e( 'Control how the colours are distributed. Colour 1 is always the background. In Wash style the other colours blend all over; in Concentric style colour 1 stays as the predominant dark background and the other colours form elongated, nested rings (set colour 1 to near-black for the moody billboard look). Flow Amount swirls the shapes, Flow Angle aims them, Colour Spread sets how much they cover, and Shape Definition sets the edge softness.', 'kdna-backgrounds' ); ?>
         </p>
         <table class="form-table kdna-bg-settings-table">
+            <tr>
+                <th><label for="kdna_bg_shape_style"><?php esc_html_e( 'Shape Style', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <select id="kdna_bg_shape_style" name="kdna_bg_shape_style">
+                        <option value="wash" <?php selected( $shape_style, 'wash' ); ?>><?php esc_html_e( 'Wash (even all-over blend)', 'kdna-backgrounds' ); ?></option>
+                        <option value="concentric" <?php selected( $shape_style, 'concentric' ); ?>><?php esc_html_e( 'Concentric (elongated nested rings)', 'kdna-backgrounds' ); ?></option>
+                    </select>
+                    <p class="description"><?php esc_html_e( 'Wash is the standard look. Concentric keeps colour 1 as the dark background and paints the other colours as elongated nested rings, inner to outer.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-shape-row" data-shape-group="concentric">
+                <th><label for="kdna_bg_stretch"><?php esc_html_e( 'Shape Stretch', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_stretch" name="kdna_bg_stretch" min="0" max="100" step="1" value="<?php echo esc_attr( $stretch ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-stretch-val"><?php echo esc_html( $stretch ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How much the rings are stretched into ovals along the Flow Angle. 0 = round, high = strongly elongated. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
             <tr>
                 <th><label for="kdna_bg_flow_amount"><?php esc_html_e( 'Flow Amount', 'kdna-backgrounds' ); ?></label></th>
                 <td>
@@ -366,6 +388,15 @@ class KDNA_BG_Meta {
         update_post_meta( $post_id, '_kdna_bg_rib_angle', max( 0, min( 180, $rib_angle ) ) );
 
         /* Colour shapes */
+        $shape_style = isset( $_POST['kdna_bg_shape_style'] ) ? sanitize_text_field( wp_unslash( $_POST['kdna_bg_shape_style'] ) ) : 'wash';
+        if ( ! in_array( $shape_style, array( 'wash', 'concentric' ), true ) ) {
+            $shape_style = 'wash';
+        }
+        update_post_meta( $post_id, '_kdna_bg_shape_style', $shape_style );
+
+        $stretch = isset( $_POST['kdna_bg_stretch'] ) ? floatval( $_POST['kdna_bg_stretch'] ) : 0;
+        update_post_meta( $post_id, '_kdna_bg_stretch', max( 0, min( 100, $stretch ) ) );
+
         $flow_amount = isset( $_POST['kdna_bg_flow_amount'] ) ? floatval( $_POST['kdna_bg_flow_amount'] ) : 0;
         update_post_meta( $post_id, '_kdna_bg_flow_amount', max( 0, min( 100, $flow_amount ) ) );
 
