@@ -40,6 +40,8 @@
             shapeStyle:      $('#kdna_bg_shape_style').val() || 'wash',
             dominantBg:      $('#kdna_bg_dominant_bg').is(':checked'),
             stretch:         numVal('#kdna_bg_stretch', 0),
+            radiateSpeed:    numVal('#kdna_bg_radiate', 45),
+            ringCount:       numVal('#kdna_bg_ring_count', 2),
             flowAmount:      numVal('#kdna_bg_flow_amount', 0),
             flowAngle:       numVal('#kdna_bg_flow_angle', 0),
             definition:      numVal('#kdna_bg_definition', 40),
@@ -201,7 +203,9 @@
                 'kdna_bg_flow_angle': '#kdna-bg-flow-angle-val',
                 'kdna_bg_definition': '#kdna-bg-definition-val',
                 'kdna_bg_spread': '#kdna-bg-spread-val',
-                'kdna_bg_stretch': '#kdna-bg-stretch-val'
+                'kdna_bg_stretch': '#kdna-bg-stretch-val',
+                'kdna_bg_radiate': '#kdna-bg-radiate-val',
+                'kdna_bg_ring_count': '#kdna-bg-ring-count-val'
             };
             var target = valMap[$(this).attr('id')];
             if (target) $(target).text($(this).val());
