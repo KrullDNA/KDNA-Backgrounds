@@ -156,6 +156,7 @@ class KDNA_BG_Meta {
     /* ── Colour shapes meta box ── */
     public function render_shapes_box( $post ) {
         $shape_style = get_post_meta( $post->ID, '_kdna_bg_shape_style', true );
+        $dominant_bg = get_post_meta( $post->ID, '_kdna_bg_dominant_bg', true );
         $stretch     = get_post_meta( $post->ID, '_kdna_bg_stretch', true );
         $flow_amount = get_post_meta( $post->ID, '_kdna_bg_flow_amount', true );
         $flow_angle  = get_post_meta( $post->ID, '_kdna_bg_flow_angle', true );
@@ -163,6 +164,7 @@ class KDNA_BG_Meta {
         $spread      = get_post_meta( $post->ID, '_kdna_bg_spread', true );
 
         $shape_style = '' !== $shape_style ? $shape_style : 'wash';
+        $dominant_bg = '' !== $dominant_bg ? $dominant_bg : '0';
         $stretch     = '' !== $stretch ? floatval( $stretch ) : 0;
         $flow_amount = '' !== $flow_amount ? floatval( $flow_amount ) : 0;
         $flow_angle  = '' !== $flow_angle ? floatval( $flow_angle ) : 0;
@@ -181,6 +183,16 @@ class KDNA_BG_Meta {
                         <option value="concentric" <?php selected( $shape_style, 'concentric' ); ?>><?php esc_html_e( 'Concentric (elongated nested rings)', 'kdna-backgrounds' ); ?></option>
                     </select>
                     <p class="description"><?php esc_html_e( 'Wash is the standard look. Concentric keeps colour 1 as the dark background and paints the other colours as elongated nested rings, inner to outer.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="kdna_bg_dominant_bg"><?php esc_html_e( 'Dominant Background', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <label>
+                        <input type="checkbox" id="kdna_bg_dominant_bg" name="kdna_bg_dominant_bg" value="1" <?php checked( $dominant_bg, '1' ); ?> />
+                        <?php esc_html_e( 'Make colour 1 the dominant background', 'kdna-backgrounds' ); ?>
+                    </label>
+                    <p class="description"><?php esc_html_e( 'When on, colour 1 fills most of the canvas and the other colours are concentrated into shapes, for a moody look with lots of dark negative space. Set colour 1 to near-black for the billboard effect.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="concentric">
@@ -393,6 +405,8 @@ class KDNA_BG_Meta {
             $shape_style = 'wash';
         }
         update_post_meta( $post_id, '_kdna_bg_shape_style', $shape_style );
+
+        update_post_meta( $post_id, '_kdna_bg_dominant_bg', isset( $_POST['kdna_bg_dominant_bg'] ) ? '1' : '0' );
 
         $stretch = isset( $_POST['kdna_bg_stretch'] ) ? floatval( $_POST['kdna_bg_stretch'] ) : 0;
         update_post_meta( $post_id, '_kdna_bg_stretch', max( 0, min( 100, $stretch ) ) );
