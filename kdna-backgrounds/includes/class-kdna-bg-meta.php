@@ -218,7 +218,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_shape_count" name="kdna_bg_shape_count" min="1" max="4" step="1" value="<?php echo esc_attr( $shape_count ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-shape-count-val"><?php echo esc_html( $shape_count ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How many separate concentric ring-shapes appear on the canvas. 1 is a single shape; higher adds more shapes elsewhere on the canvas (each its own size and drift), not more rings inside the first one. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How many separate concentric ring-shapes appear on the canvas. 1 is a single shape; higher places extra shapes in different parts of the screen, each smaller, with its own random angle and slow drift. They stay apart most of the time and only touch (and blend) now and then as they move. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="concentric">
