@@ -165,6 +165,7 @@ class KDNA_BG_Meta {
         $drift       = get_post_meta( $post->ID, '_kdna_bg_drift', true );
         $band_min    = get_post_meta( $post->ID, '_kdna_bg_band_min', true );
         $band_max    = get_post_meta( $post->ID, '_kdna_bg_band_max', true );
+        $band_vary   = get_post_meta( $post->ID, '_kdna_bg_band_vary', true );
         $grain       = get_post_meta( $post->ID, '_kdna_bg_grain', true );
         $sheen       = get_post_meta( $post->ID, '_kdna_bg_sheen', true );
         $flow_amount = get_post_meta( $post->ID, '_kdna_bg_flow_amount', true );
@@ -182,6 +183,7 @@ class KDNA_BG_Meta {
         $drift       = '' !== $drift ? floatval( $drift ) : 40;
         $band_min    = '' !== $band_min ? floatval( $band_min ) : 25;
         $band_max    = '' !== $band_max ? floatval( $band_max ) : 60;
+        $band_vary   = '' !== $band_vary ? floatval( $band_vary ) : 50;
         $grain       = '' !== $grain ? floatval( $grain ) : 0;
         $sheen       = '' !== $sheen ? floatval( $sheen ) : 0;
         $flow_amount = '' !== $flow_amount ? floatval( $flow_amount ) : 0;
@@ -252,6 +254,14 @@ class KDNA_BG_Meta {
                     <input type="range" id="kdna_bg_band_max" name="kdna_bg_band_max" min="1" max="100" step="1" value="<?php echo esc_attr( $band_max ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-band-max-val"><?php echo esc_html( $band_max ); ?></span>
                     <p class="description"><?php esc_html_e( 'The widest a band can be. Set Min and Max close together for even bands, or far apart for strongly varied widths. (If Max is below Min it is treated as equal to Min.) (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-shape-row" data-shape-group="bands">
+                <th><label for="kdna_bg_band_vary"><?php esc_html_e( 'Width Variation', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_band_vary" name="kdna_bg_band_vary" min="0" max="100" step="1" value="<?php echo esc_attr( $band_vary ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-band-vary-val"><?php echo esc_html( $band_vary ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How much each band changes width along its own length. 0 = even ribbons; higher = each band pinches and swells by a random amount down its length (some thinner at the top, some at the bottom), like folds of fabric. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="concentric bands">
@@ -522,6 +532,7 @@ class KDNA_BG_Meta {
 
         update_post_meta( $post_id, '_kdna_bg_band_min', isset( $_POST['kdna_bg_band_min'] ) ? max( 1, min( 100, floatval( $_POST['kdna_bg_band_min'] ) ) ) : 25 );
         update_post_meta( $post_id, '_kdna_bg_band_max', isset( $_POST['kdna_bg_band_max'] ) ? max( 1, min( 100, floatval( $_POST['kdna_bg_band_max'] ) ) ) : 60 );
+        update_post_meta( $post_id, '_kdna_bg_band_vary', isset( $_POST['kdna_bg_band_vary'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_band_vary'] ) ) ) : 50 );
         update_post_meta( $post_id, '_kdna_bg_sheen', isset( $_POST['kdna_bg_sheen'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_sheen'] ) ) ) : 0 );
         update_post_meta( $post_id, '_kdna_bg_grain', isset( $_POST['kdna_bg_grain'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_grain'] ) ) ) : 0 );
     }
