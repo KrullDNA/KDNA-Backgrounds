@@ -163,6 +163,11 @@ class KDNA_BG_Meta {
         $shape_count = get_post_meta( $post->ID, '_kdna_bg_shape_count', true );
         $color_blend = get_post_meta( $post->ID, '_kdna_bg_color_blend', true );
         $drift       = get_post_meta( $post->ID, '_kdna_bg_drift', true );
+        $band_min    = get_post_meta( $post->ID, '_kdna_bg_band_min', true );
+        $band_max    = get_post_meta( $post->ID, '_kdna_bg_band_max', true );
+        $band_vary   = get_post_meta( $post->ID, '_kdna_bg_band_vary', true );
+        $grain       = get_post_meta( $post->ID, '_kdna_bg_grain', true );
+        $sheen       = get_post_meta( $post->ID, '_kdna_bg_sheen', true );
         $flow_amount = get_post_meta( $post->ID, '_kdna_bg_flow_amount', true );
         $flow_angle  = get_post_meta( $post->ID, '_kdna_bg_flow_angle', true );
         $definition  = get_post_meta( $post->ID, '_kdna_bg_definition', true );
@@ -176,6 +181,11 @@ class KDNA_BG_Meta {
         $shape_count = '' !== $shape_count ? floatval( $shape_count ) : 1;
         $color_blend = '' !== $color_blend ? floatval( $color_blend ) : 70;
         $drift       = '' !== $drift ? floatval( $drift ) : 40;
+        $band_min    = '' !== $band_min ? floatval( $band_min ) : 25;
+        $band_max    = '' !== $band_max ? floatval( $band_max ) : 60;
+        $band_vary   = '' !== $band_vary ? floatval( $band_vary ) : 50;
+        $grain       = '' !== $grain ? floatval( $grain ) : 0;
+        $sheen       = '' !== $sheen ? floatval( $sheen ) : 0;
         $flow_amount = '' !== $flow_amount ? floatval( $flow_amount ) : 0;
         $flow_angle  = '' !== $flow_angle ? floatval( $flow_angle ) : 0;
         $definition  = '' !== $definition ? floatval( $definition ) : 40;
@@ -191,8 +201,9 @@ class KDNA_BG_Meta {
                     <select id="kdna_bg_shape_style" name="kdna_bg_shape_style">
                         <option value="wash" <?php selected( $shape_style, 'wash' ); ?>><?php esc_html_e( 'Wash (even all-over blend)', 'kdna-backgrounds' ); ?></option>
                         <option value="concentric" <?php selected( $shape_style, 'concentric' ); ?>><?php esc_html_e( 'Concentric (animated radiating rings)', 'kdna-backgrounds' ); ?></option>
+                        <option value="bands" <?php selected( $shape_style, 'bands' ); ?>><?php esc_html_e( 'Bands (fanned, sweeping bands)', 'kdna-backgrounds' ); ?></option>
                     </select>
-                    <p class="description"><?php esc_html_e( 'Wash is the standard look. Concentric keeps colour 1 as the dark background and sends the other colours out as concentric rings that radiate from a wandering centre, with shuffling colours and a breathing shape. Use Radiate Speed and Ring Count below to control it.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Wash is the standard all-over blend. Concentric keeps colour 1 as the dark background and sends the other colours out as smooth rings that radiate and loop, on one or more drifting shapes. Bands paints the colours as soft bands that fan out from below the bottom edge (bunched at the bottom, splayed at the top) and slowly sweep, with the tops moving further than the bottoms; use Flow Angle to lean the fan and Radiate Speed for the sweep.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr>
@@ -226,10 +237,34 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_ring_count" name="kdna_bg_ring_count" min="1" max="6" step="1" value="<?php echo esc_attr( $ring_count ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-ring-count-val"><?php echo esc_html( $ring_count ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How many times the colour set repeats within one shape as it radiates out. 1 shows each colour once (e.g. one orange ring, one pink ring); 2 shows each colour twice, and so on. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How many times the colour set repeats within one shape as it radiates out. 1 = one ring per colour, higher = more, tighter rings. (Concentric style only; Bands uses Min/Max Width instead.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-shape-row" data-shape-group="concentric">
+            <tr class="kdna-bg-shape-row" data-shape-group="bands">
+                <th><label for="kdna_bg_band_min"><?php esc_html_e( 'Min Width', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_band_min" name="kdna_bg_band_min" min="1" max="100" step="1" value="<?php echo esc_attr( $band_min ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-band-min-val"><?php echo esc_html( $band_min ); ?></span>
+                    <p class="description"><?php esc_html_e( 'The narrowest a band can be. Each band is given a random width between Min and Max, so the bands are irregular (some thin, some fat). (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-shape-row" data-shape-group="bands">
+                <th><label for="kdna_bg_band_max"><?php esc_html_e( 'Max Width', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_band_max" name="kdna_bg_band_max" min="1" max="100" step="1" value="<?php echo esc_attr( $band_max ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-band-max-val"><?php echo esc_html( $band_max ); ?></span>
+                    <p class="description"><?php esc_html_e( 'The widest a band can be. Set Min and Max close together for even bands, or far apart for strongly varied widths. (If Max is below Min it is treated as equal to Min.) (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-shape-row" data-shape-group="bands">
+                <th><label for="kdna_bg_band_vary"><?php esc_html_e( 'Width Variation', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_band_vary" name="kdna_bg_band_vary" min="0" max="100" step="1" value="<?php echo esc_attr( $band_vary ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-band-vary-val"><?php echo esc_html( $band_vary ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How much each band changes width along its own length. 0 = even ribbons; higher = each band pinches and swells by a random amount down its length (some thinner at the top, some at the bottom), like folds of fabric. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-shape-row" data-shape-group="concentric bands">
                 <th><label for="kdna_bg_color_blend"><?php esc_html_e( 'Colour Blend', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_color_blend" name="kdna_bg_color_blend" min="0" max="100" step="1" value="<?php echo esc_attr( $color_blend ); ?>" />
@@ -237,12 +272,12 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How softly the colours melt into each other. Low = more defined rings with crisper colour edges; high = the colours blur and blend gently from one into the next. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-shape-row" data-shape-group="concentric">
+            <tr class="kdna-bg-shape-row" data-shape-group="concentric bands">
                 <th><label for="kdna_bg_radiate"><?php esc_html_e( 'Radiate Speed', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_radiate" name="kdna_bg_radiate" min="0" max="100" step="1" value="<?php echo esc_attr( $radiate ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-radiate-val"><?php echo esc_html( $radiate ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How fast the colours travel outward from the centre in a continuous loop. Tuned to a slow, smooth range so it is never frantic. 0 = still. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Movement speed. In Concentric it is how fast the colours travel outward in a loop; in Bands it is how fast the bands migrate across the screen. Tuned to a slow, smooth range so it is never frantic. 0 = still. (Concentric and Bands styles.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="concentric">
@@ -266,7 +301,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_flow_angle" name="kdna_bg_flow_angle" min="0" max="360" step="1" value="<?php echo esc_attr( $flow_angle ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-flow-angle-val"><?php echo esc_html( $flow_angle ); ?></span>
-                    <p class="description"><?php esc_html_e( 'Aims the flow direction in degrees (0 to 360), so the sweep can run on a diagonal. Only has an effect when Flow Amount is above 0.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Direction in degrees (0 to 360), so the look can run on a diagonal. In Bands it sets the angle of the bands; in Concentric it aims the elongation; in Wash it aims the flow (only when Flow Amount is above 0).', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr>
@@ -283,6 +318,22 @@ class KDNA_BG_Meta {
                     <input type="range" id="kdna_bg_spread" name="kdna_bg_spread" min="0" max="100" step="1" value="<?php echo esc_attr( $spread ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-spread-val"><?php echo esc_html( $spread ); ?></span>
                     <p class="description"><?php esc_html_e( 'How much of the canvas the colours cover. Low = small concentrated shapes with lots of dark negative space, high = colours fill most of the canvas.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="kdna_bg_sheen"><?php esc_html_e( 'Sheen', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_sheen" name="kdna_bg_sheen" min="0" max="100" step="1" value="<?php echo esc_attr( $sheen ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-sheen-val"><?php echo esc_html( $sheen ); ?></span>
+                    <p class="description"><?php esc_html_e( 'Adds a slow, flowing brightness variation so the colours catch the light like satin or fabric. 0 = flat, smooth colour; higher = stronger light and shade. (Works in all styles.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="kdna_bg_grain"><?php esc_html_e( 'Grain', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_grain" name="kdna_bg_grain" min="0" max="100" step="1" value="<?php echo esc_attr( $grain ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-grain-val"><?php echo esc_html( $grain ); ?></span>
+                    <p class="description"><?php esc_html_e( 'Adds a fine film-grain speckle over the whole background for a textured, printed feel. 0 = clean; higher = grainier. (Works in all styles.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
         </table>
@@ -478,6 +529,12 @@ class KDNA_BG_Meta {
 
         $spread = isset( $_POST['kdna_bg_spread'] ) ? floatval( $_POST['kdna_bg_spread'] ) : 50;
         update_post_meta( $post_id, '_kdna_bg_spread', max( 0, min( 100, $spread ) ) );
+
+        update_post_meta( $post_id, '_kdna_bg_band_min', isset( $_POST['kdna_bg_band_min'] ) ? max( 1, min( 100, floatval( $_POST['kdna_bg_band_min'] ) ) ) : 25 );
+        update_post_meta( $post_id, '_kdna_bg_band_max', isset( $_POST['kdna_bg_band_max'] ) ? max( 1, min( 100, floatval( $_POST['kdna_bg_band_max'] ) ) ) : 60 );
+        update_post_meta( $post_id, '_kdna_bg_band_vary', isset( $_POST['kdna_bg_band_vary'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_band_vary'] ) ) ) : 50 );
+        update_post_meta( $post_id, '_kdna_bg_sheen', isset( $_POST['kdna_bg_sheen'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_sheen'] ) ) ) : 0 );
+        update_post_meta( $post_id, '_kdna_bg_grain', isset( $_POST['kdna_bg_grain'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_grain'] ) ) ) : 0 );
     }
 }
 

@@ -45,10 +45,15 @@
             shapeCount:      numVal('#kdna_bg_shape_count', 1),
             colorBlend:      numVal('#kdna_bg_color_blend', 70),
             drift:           numVal('#kdna_bg_drift', 40),
+            bandMin:         numVal('#kdna_bg_band_min', 25),
+            bandMax:         numVal('#kdna_bg_band_max', 60),
+            bandVary:        numVal('#kdna_bg_band_vary', 50),
             flowAmount:      numVal('#kdna_bg_flow_amount', 0),
             flowAngle:       numVal('#kdna_bg_flow_angle', 0),
             definition:      numVal('#kdna_bg_definition', 40),
-            spread:          numVal('#kdna_bg_spread', 50)
+            spread:          numVal('#kdna_bg_spread', 50),
+            sheen:           numVal('#kdna_bg_sheen', 0),
+            grain:           numVal('#kdna_bg_grain', 0)
         };
     }
 
@@ -211,7 +216,12 @@
                 'kdna_bg_ring_count': '#kdna-bg-ring-count-val',
                 'kdna_bg_shape_count': '#kdna-bg-shape-count-val',
                 'kdna_bg_color_blend': '#kdna-bg-color-blend-val',
-                'kdna_bg_drift': '#kdna-bg-drift-val'
+                'kdna_bg_drift': '#kdna-bg-drift-val',
+                'kdna_bg_band_min': '#kdna-bg-band-min-val',
+                'kdna_bg_band_max': '#kdna-bg-band-max-val',
+                'kdna_bg_band_vary': '#kdna-bg-band-vary-val',
+                'kdna_bg_sheen': '#kdna-bg-sheen-val',
+                'kdna_bg_grain': '#kdna-bg-grain-val'
             };
             var target = valMap[$(this).attr('id')];
             if (target) $(target).text($(this).val());
