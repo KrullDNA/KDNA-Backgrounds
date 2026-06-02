@@ -163,6 +163,8 @@ class KDNA_BG_Meta {
         $shape_count = get_post_meta( $post->ID, '_kdna_bg_shape_count', true );
         $color_blend = get_post_meta( $post->ID, '_kdna_bg_color_blend', true );
         $drift       = get_post_meta( $post->ID, '_kdna_bg_drift', true );
+        $grain       = get_post_meta( $post->ID, '_kdna_bg_grain', true );
+        $sheen       = get_post_meta( $post->ID, '_kdna_bg_sheen', true );
         $flow_amount = get_post_meta( $post->ID, '_kdna_bg_flow_amount', true );
         $flow_angle  = get_post_meta( $post->ID, '_kdna_bg_flow_angle', true );
         $definition  = get_post_meta( $post->ID, '_kdna_bg_definition', true );
@@ -176,6 +178,8 @@ class KDNA_BG_Meta {
         $shape_count = '' !== $shape_count ? floatval( $shape_count ) : 1;
         $color_blend = '' !== $color_blend ? floatval( $color_blend ) : 70;
         $drift       = '' !== $drift ? floatval( $drift ) : 40;
+        $grain       = '' !== $grain ? floatval( $grain ) : 0;
+        $sheen       = '' !== $sheen ? floatval( $sheen ) : 0;
         $flow_amount = '' !== $flow_amount ? floatval( $flow_amount ) : 0;
         $flow_angle  = '' !== $flow_angle ? floatval( $flow_angle ) : 0;
         $definition  = '' !== $definition ? floatval( $definition ) : 40;
@@ -284,6 +288,22 @@ class KDNA_BG_Meta {
                     <input type="range" id="kdna_bg_spread" name="kdna_bg_spread" min="0" max="100" step="1" value="<?php echo esc_attr( $spread ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-spread-val"><?php echo esc_html( $spread ); ?></span>
                     <p class="description"><?php esc_html_e( 'How much of the canvas the colours cover. Low = small concentrated shapes with lots of dark negative space, high = colours fill most of the canvas.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="kdna_bg_sheen"><?php esc_html_e( 'Sheen', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_sheen" name="kdna_bg_sheen" min="0" max="100" step="1" value="<?php echo esc_attr( $sheen ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-sheen-val"><?php echo esc_html( $sheen ); ?></span>
+                    <p class="description"><?php esc_html_e( 'Adds a slow, flowing brightness variation so the colours catch the light like satin or fabric. 0 = flat, smooth colour; higher = stronger light and shade. (Works in all styles.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="kdna_bg_grain"><?php esc_html_e( 'Grain', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_grain" name="kdna_bg_grain" min="0" max="100" step="1" value="<?php echo esc_attr( $grain ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-grain-val"><?php echo esc_html( $grain ); ?></span>
+                    <p class="description"><?php esc_html_e( 'Adds a fine film-grain speckle over the whole background for a textured, printed feel. 0 = clean; higher = grainier. (Works in all styles.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
         </table>
@@ -479,6 +499,9 @@ class KDNA_BG_Meta {
 
         $spread = isset( $_POST['kdna_bg_spread'] ) ? floatval( $_POST['kdna_bg_spread'] ) : 50;
         update_post_meta( $post_id, '_kdna_bg_spread', max( 0, min( 100, $spread ) ) );
+
+        update_post_meta( $post_id, '_kdna_bg_sheen', isset( $_POST['kdna_bg_sheen'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_sheen'] ) ) ) : 0 );
+        update_post_meta( $post_id, '_kdna_bg_grain', isset( $_POST['kdna_bg_grain'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_grain'] ) ) ) : 0 );
     }
 }
 

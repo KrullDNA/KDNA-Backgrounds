@@ -44,6 +44,8 @@ class KDNA_BG_Render {
         $shape_count  = get_post_meta( $post_id, '_kdna_bg_shape_count', true );
         $color_blend  = get_post_meta( $post_id, '_kdna_bg_color_blend', true );
         $drift        = get_post_meta( $post_id, '_kdna_bg_drift', true );
+        $grain        = get_post_meta( $post_id, '_kdna_bg_grain', true );
+        $sheen        = get_post_meta( $post_id, '_kdna_bg_sheen', true );
         $flow_amount = get_post_meta( $post_id, '_kdna_bg_flow_amount', true );
         $flow_angle  = get_post_meta( $post_id, '_kdna_bg_flow_angle', true );
         $definition  = get_post_meta( $post_id, '_kdna_bg_definition', true );
@@ -75,6 +77,8 @@ class KDNA_BG_Render {
             'shapeCount'      => '' !== $shape_count ? floatval( $shape_count ) : 1,
             'colorBlend'      => '' !== $color_blend ? floatval( $color_blend ) : 70,
             'drift'           => '' !== $drift ? floatval( $drift ) : 40,
+            'grain'           => '' !== $grain ? floatval( $grain ) : 0,
+            'sheen'           => '' !== $sheen ? floatval( $sheen ) : 0,
             'flowAmount'      => '' !== $flow_amount ? floatval( $flow_amount ) : 0,
             'flowAngle'       => '' !== $flow_angle ? floatval( $flow_angle ) : 0,
             'definition'      => '' !== $definition ? floatval( $definition ) : 40,
