@@ -191,8 +191,9 @@ class KDNA_BG_Meta {
                     <select id="kdna_bg_shape_style" name="kdna_bg_shape_style">
                         <option value="wash" <?php selected( $shape_style, 'wash' ); ?>><?php esc_html_e( 'Wash (even all-over blend)', 'kdna-backgrounds' ); ?></option>
                         <option value="concentric" <?php selected( $shape_style, 'concentric' ); ?>><?php esc_html_e( 'Concentric (animated radiating rings)', 'kdna-backgrounds' ); ?></option>
+                        <option value="bands" <?php selected( $shape_style, 'bands' ); ?>><?php esc_html_e( 'Bands (flowing diagonal bands)', 'kdna-backgrounds' ); ?></option>
                     </select>
-                    <p class="description"><?php esc_html_e( 'Wash is the standard look. Concentric keeps colour 1 as the dark background and sends the other colours out as concentric rings that radiate from a wandering centre, with shuffling colours and a breathing shape. Use Radiate Speed and Ring Count below to control it.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Wash is the standard all-over blend. Concentric keeps colour 1 as the dark background and sends the other colours out as smooth rings that radiate and loop, on one or more drifting shapes. Bands paints the colours as flowing diagonal bands that migrate across the screen; use Flow Angle to set the band angle and Radiate Speed for the migration.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr>
@@ -221,15 +222,15 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How many separate concentric ring-shapes appear on the canvas. 1 is a single shape; higher places extra shapes in different parts of the screen, each smaller, with its own random angle and slow drift. They stay apart most of the time and only touch (and blend) now and then as they move. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-shape-row" data-shape-group="concentric">
+            <tr class="kdna-bg-shape-row" data-shape-group="concentric bands">
                 <th><label for="kdna_bg_ring_count"><?php esc_html_e( 'Colour Repeats', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_ring_count" name="kdna_bg_ring_count" min="1" max="6" step="1" value="<?php echo esc_attr( $ring_count ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-ring-count-val"><?php echo esc_html( $ring_count ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How many times the colour set repeats within one shape as it radiates out. 1 shows each colour once (e.g. one orange ring, one pink ring); 2 shows each colour twice, and so on. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How many times the colour set repeats. In Concentric it is the repeats within one shape (1 = one ring per colour); in Bands it is how many bands span the screen. Higher = more, tighter rings or bands. (Concentric and Bands styles.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-shape-row" data-shape-group="concentric">
+            <tr class="kdna-bg-shape-row" data-shape-group="concentric bands">
                 <th><label for="kdna_bg_color_blend"><?php esc_html_e( 'Colour Blend', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_color_blend" name="kdna_bg_color_blend" min="0" max="100" step="1" value="<?php echo esc_attr( $color_blend ); ?>" />
@@ -237,12 +238,12 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How softly the colours melt into each other. Low = more defined rings with crisper colour edges; high = the colours blur and blend gently from one into the next. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-shape-row" data-shape-group="concentric">
+            <tr class="kdna-bg-shape-row" data-shape-group="concentric bands">
                 <th><label for="kdna_bg_radiate"><?php esc_html_e( 'Radiate Speed', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_radiate" name="kdna_bg_radiate" min="0" max="100" step="1" value="<?php echo esc_attr( $radiate ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-radiate-val"><?php echo esc_html( $radiate ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How fast the colours travel outward from the centre in a continuous loop. Tuned to a slow, smooth range so it is never frantic. 0 = still. (Concentric style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Movement speed. In Concentric it is how fast the colours travel outward in a loop; in Bands it is how fast the bands migrate across the screen. Tuned to a slow, smooth range so it is never frantic. 0 = still. (Concentric and Bands styles.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="concentric">
@@ -266,7 +267,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_flow_angle" name="kdna_bg_flow_angle" min="0" max="360" step="1" value="<?php echo esc_attr( $flow_angle ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-flow-angle-val"><?php echo esc_html( $flow_angle ); ?></span>
-                    <p class="description"><?php esc_html_e( 'Aims the flow direction in degrees (0 to 360), so the sweep can run on a diagonal. Only has an effect when Flow Amount is above 0.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Direction in degrees (0 to 360), so the look can run on a diagonal. In Bands it sets the angle of the bands; in Concentric it aims the elongation; in Wash it aims the flow (only when Flow Amount is above 0).', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr>
