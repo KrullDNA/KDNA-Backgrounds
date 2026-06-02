@@ -191,9 +191,9 @@ class KDNA_BG_Meta {
                     <select id="kdna_bg_shape_style" name="kdna_bg_shape_style">
                         <option value="wash" <?php selected( $shape_style, 'wash' ); ?>><?php esc_html_e( 'Wash (even all-over blend)', 'kdna-backgrounds' ); ?></option>
                         <option value="concentric" <?php selected( $shape_style, 'concentric' ); ?>><?php esc_html_e( 'Concentric (animated radiating rings)', 'kdna-backgrounds' ); ?></option>
-                        <option value="bands" <?php selected( $shape_style, 'bands' ); ?>><?php esc_html_e( 'Bands (flowing diagonal bands)', 'kdna-backgrounds' ); ?></option>
+                        <option value="bands" <?php selected( $shape_style, 'bands' ); ?>><?php esc_html_e( 'Bands (fanned, sweeping bands)', 'kdna-backgrounds' ); ?></option>
                     </select>
-                    <p class="description"><?php esc_html_e( 'Wash is the standard all-over blend. Concentric keeps colour 1 as the dark background and sends the other colours out as smooth rings that radiate and loop, on one or more drifting shapes. Bands paints the colours as flowing diagonal bands that migrate across the screen; use Flow Angle to set the band angle and Radiate Speed for the migration.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Wash is the standard all-over blend. Concentric keeps colour 1 as the dark background and sends the other colours out as smooth rings that radiate and loop, on one or more drifting shapes. Bands paints the colours as soft bands that fan out from below the bottom edge (bunched at the bottom, splayed at the top) and slowly sweep, with the tops moving further than the bottoms; use Flow Angle to lean the fan and Radiate Speed for the sweep.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr>
