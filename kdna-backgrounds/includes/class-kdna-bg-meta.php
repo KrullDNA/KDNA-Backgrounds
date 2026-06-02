@@ -502,7 +502,7 @@ class KDNA_BG_Meta {
 
         /* Colour shapes */
         $shape_style = isset( $_POST['kdna_bg_shape_style'] ) ? sanitize_text_field( wp_unslash( $_POST['kdna_bg_shape_style'] ) ) : 'wash';
-        if ( ! in_array( $shape_style, array( 'wash', 'concentric' ), true ) ) {
+        if ( ! in_array( $shape_style, array( 'wash', 'concentric', 'bands' ), true ) ) {
             $shape_style = 'wash';
         }
         update_post_meta( $post_id, '_kdna_bg_shape_style', $shape_style );

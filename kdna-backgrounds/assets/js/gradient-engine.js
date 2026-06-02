@@ -1,5 +1,5 @@
 /**
- * KDNA Gradient Engine v2.1.5
+ * KDNA Gradient Engine v2.1.6
  * WebGL mesh gradient with optional glass refraction second pass,
  * and a Canvas 2D fallback.
  */
