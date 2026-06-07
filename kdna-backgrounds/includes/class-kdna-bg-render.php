@@ -34,6 +34,7 @@ class KDNA_BG_Render {
         $refract_speed   = get_post_meta( $post_id, '_kdna_bg_refract_speed', true );
         $rib_count       = get_post_meta( $post_id, '_kdna_bg_rib_count', true );
         $rib_angle       = get_post_meta( $post_id, '_kdna_bg_rib_angle', true );
+        $rib_sharp       = get_post_meta( $post_id, '_kdna_bg_rib_sharp', true );
 
         /* Shape controls */
         $shape_style  = get_post_meta( $post_id, '_kdna_bg_shape_style', true );
@@ -72,6 +73,7 @@ class KDNA_BG_Render {
             'refractSpeed'    => '' !== $refract_speed ? floatval( $refract_speed ) : 5,
             'ribCount'        => '' !== $rib_count ? intval( $rib_count ) : 40,
             'ribAngle'        => '' !== $rib_angle ? floatval( $rib_angle ) : 90,
+            'ribSharp'        => '' !== $rib_sharp ? floatval( $rib_sharp ) : 0,
             'shapeStyle'      => '' !== $shape_style ? $shape_style : 'wash',
             'dominantBg'      => '1' === $dominant_bg,
             'stretch'         => '' !== $stretch ? floatval( $stretch ) : 0,

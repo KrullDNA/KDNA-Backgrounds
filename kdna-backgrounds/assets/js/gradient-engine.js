@@ -1,5 +1,5 @@
 /**
- * KDNA Gradient Engine v2.1.5
+ * KDNA Gradient Engine v2.1.7
  * WebGL mesh gradient with optional glass refraction second pass,
  * and a Canvas 2D fallback.
  */
@@ -266,7 +266,7 @@
      * so the ribs sit at exactly the chosen orientation. */
     var shaderRefractVertex = 'precision highp float;\nattribute vec2 a_pos;\nvarying vec2 v_uv;\nvoid main(){v_uv=a_pos*0.5+0.5;gl_Position=vec4(a_pos,0.0,1.0);}';
 
-    var shaderRefractMain = 'varying vec2 v_uv;\nuniform sampler2D u_texture;\nuniform float u_aspect;\nuniform float u_time;\nuniform int u_glassType;\nuniform float u_strength;\nuniform float u_scale;\nuniform float u_rippleSpeed;\nuniform float u_ribCount;\nuniform float u_ribAngle;\nuniform float u_seed;\nvoid main(){\nvec2 uv=v_uv;\nvec2 disp=vec2(0.0);\nif(u_glassType==1){\nfloat freq=mix(18.0,1.5,clamp((u_scale-1.0)/49.0,0.0,1.0));\nvec2 nc=vec2(uv.x*u_aspect,uv.y)*freq;\nfloat t=u_time*u_rippleSpeed*0.00005;\nfloat nx=snoise(vec3(nc+u_seed,t));\nfloat ny=snoise(vec3(nc+u_seed+37.3,t+19.1));\ndisp=vec2(nx,ny)*u_strength;\n}else if(u_glassType==2){\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat ca=cos(u_ribAngle);\nfloat sa=sin(u_ribAngle);\nfloat coord=p.x*sa+p.y*ca;\nvec2 dir=vec2(sa,ca);\nfloat ribs=sin(coord*u_ribCount*6.2831853);\nvec2 d=dir*ribs*u_strength;\ndisp=vec2(d.x/u_aspect,d.y);\n}\ngl_FragColor=texture2D(u_texture,clamp(uv+disp,0.0,1.0));\n}';
+    var shaderRefractMain = 'varying vec2 v_uv;\nuniform sampler2D u_texture;\nuniform float u_aspect;\nuniform float u_time;\nuniform int u_glassType;\nuniform float u_strength;\nuniform float u_scale;\nuniform float u_rippleSpeed;\nuniform float u_ribCount;\nuniform float u_ribAngle;\nuniform float u_ribSharp;\nuniform float u_seed;\nvoid main(){\nvec2 uv=v_uv;\nvec2 disp=vec2(0.0);\nif(u_glassType==1){\nfloat freq=mix(18.0,1.5,clamp((u_scale-1.0)/49.0,0.0,1.0));\nvec2 nc=vec2(uv.x*u_aspect,uv.y)*freq;\nfloat t=u_time*u_rippleSpeed*0.00005;\nfloat nx=snoise(vec3(nc+u_seed,t));\nfloat ny=snoise(vec3(nc+u_seed+37.3,t+19.1));\ndisp=vec2(nx,ny)*u_strength;\n}else if(u_glassType==2){\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat ca=cos(u_ribAngle);\nfloat sa=sin(u_ribAngle);\nfloat coord=p.x*sa+p.y*ca;\nvec2 dir=vec2(sa,ca);\nfloat s=sin(coord*u_ribCount*6.2831853);\nfloat sh=mix(1.0,0.1,clamp(u_ribSharp,0.0,1.0));\nfloat ribs=sign(s)*pow(abs(s),sh);\nvec2 d=dir*ribs*u_strength;\ndisp=vec2(d.x/u_aspect,d.y);\n}\ngl_FragColor=texture2D(u_texture,clamp(uv+disp,0.0,1.0));\n}';
 
     /* ═══════════════════════════════════════
      * KDNAGradient - WebGL
@@ -554,6 +554,7 @@
             rippleSpeed: parseFloat(cfg.refractSpeed) || 5,
             ribCount:    parseFloat(cfg.ribCount) || 40,
             ribAngle:    (parseFloat(cfg.ribAngle) || 0) * Math.PI / 180,
+            ribSharp:    (cfg.ribSharp != null ? parseFloat(cfg.ribSharp) : 0) / 100,
             seed:        (cfg.seed || 5) * 3.7
         };
 
@@ -583,6 +584,7 @@
             rippleSpeed: gl.getUniformLocation(prog, 'u_rippleSpeed'),
             ribCount:    gl.getUniformLocation(prog, 'u_ribCount'),
             ribAngle:    gl.getUniformLocation(prog, 'u_ribAngle'),
+            ribSharp:    gl.getUniformLocation(prog, 'u_ribSharp'),
             seed:        gl.getUniformLocation(prog, 'u_seed')
         };
 
@@ -644,6 +646,7 @@
         gl.uniform1f(u.rippleSpeed, r.rippleSpeed);
         gl.uniform1f(u.ribCount, r.ribCount);
         gl.uniform1f(u.ribAngle, r.ribAngle);
+        gl.uniform1f(u.ribSharp, r.ribSharp);
         gl.uniform1f(u.seed, r.seed);
         gl.bindBuffer(gl.ARRAY_BUFFER, self._quadBuf);
         gl.enableVertexAttribArray(u.pos);
