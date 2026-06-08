@@ -1,5 +1,5 @@
 /**
- * KDNA Gradient Engine v2.1.7
+ * KDNA Gradient Engine v2.1.8
  * WebGL mesh gradient with optional glass refraction second pass,
  * and a Canvas 2D fallback.
  */
@@ -262,11 +262,12 @@
      * A full-screen quad samples the rendered gradient texture with a
      * displacement offset. Type 1 (Liquid) uses simplex noise on its own
      * seed so the ripples move independently of the colour animation.
-     * Type 2 (Fluted) uses a periodic sine wave rotated to a precise angle
-     * so the ribs sit at exactly the chosen orientation. */
+     * Type 2 (Fluted) models an array of cylindrical-lens ribs rotated to a
+     * precise angle: each rib bends the gradient with a per-rib sawtooth
+     * ramp and is shaded as a rounded glass rod, for true reeded glass. */
     var shaderRefractVertex = 'precision highp float;\nattribute vec2 a_pos;\nvarying vec2 v_uv;\nvoid main(){v_uv=a_pos*0.5+0.5;gl_Position=vec4(a_pos,0.0,1.0);}';
 
-    var shaderRefractMain = 'varying vec2 v_uv;\nuniform sampler2D u_texture;\nuniform float u_aspect;\nuniform float u_time;\nuniform int u_glassType;\nuniform float u_strength;\nuniform float u_scale;\nuniform float u_rippleSpeed;\nuniform float u_ribCount;\nuniform float u_ribAngle;\nuniform float u_ribSharp;\nuniform float u_seed;\nvoid main(){\nvec2 uv=v_uv;\nvec2 disp=vec2(0.0);\nif(u_glassType==1){\nfloat freq=mix(18.0,1.5,clamp((u_scale-1.0)/49.0,0.0,1.0));\nvec2 nc=vec2(uv.x*u_aspect,uv.y)*freq;\nfloat t=u_time*u_rippleSpeed*0.00005;\nfloat nx=snoise(vec3(nc+u_seed,t));\nfloat ny=snoise(vec3(nc+u_seed+37.3,t+19.1));\ndisp=vec2(nx,ny)*u_strength;\n}else if(u_glassType==2){\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat ca=cos(u_ribAngle);\nfloat sa=sin(u_ribAngle);\nfloat coord=p.x*sa+p.y*ca;\nvec2 dir=vec2(sa,ca);\nfloat s=sin(coord*u_ribCount*6.2831853);\nfloat sh=mix(1.0,0.1,clamp(u_ribSharp,0.0,1.0));\nfloat ribs=sign(s)*pow(abs(s),sh);\nvec2 d=dir*ribs*u_strength;\ndisp=vec2(d.x/u_aspect,d.y);\n}\ngl_FragColor=texture2D(u_texture,clamp(uv+disp,0.0,1.0));\n}';
+    var shaderRefractMain = 'varying vec2 v_uv;\nuniform sampler2D u_texture;\nuniform float u_aspect;\nuniform float u_time;\nuniform int u_glassType;\nuniform float u_strength;\nuniform float u_scale;\nuniform float u_rippleSpeed;\nuniform float u_ribCount;\nuniform float u_ribAngle;\nuniform float u_ribSharp;\nuniform float u_seed;\nvoid main(){\nvec2 uv=v_uv;\nvec2 disp=vec2(0.0);\nvec3 tint=vec3(1.0);\nvec3 add=vec3(0.0);\nif(u_glassType==1){\nfloat freq=mix(18.0,1.5,clamp((u_scale-1.0)/49.0,0.0,1.0));\nvec2 nc=vec2(uv.x*u_aspect,uv.y)*freq;\nfloat t=u_time*u_rippleSpeed*0.00005;\nfloat nx=snoise(vec3(nc+u_seed,t));\nfloat ny=snoise(vec3(nc+u_seed+37.3,t+19.1));\ndisp=vec2(nx,ny)*u_strength;\n}else if(u_glassType==2){\n/* Fluted / reeded glass: an array of vertical cylindrical-lens ribs.\n   Within each rib the gradient is swept by a sawtooth ramp, so a\n   compressed slice of the colours repeats per rib (as when looking\n   through real reeded glass), and each rib is shaded like a rounded\n   glass rod: bright down the centre, darkening into the seams between\n   ribs. Rib Sharpness morphs the rod from a soft, round flute (gentle\n   ramp, soft seams) toward a flat-faceted prism (near-linear ramp,\n   crisp seam lines). The old control only laterally shifted the whole\n   image and hard-clipped into thin doubled lines at high sharpness. */\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat ca=cos(u_ribAngle);\nfloat sa=sin(u_ribAngle);\nfloat coord=p.x*sa+p.y*ca;\nvec2 dir=vec2(sa,ca);\nfloat sharp=clamp(u_ribSharp,0.0,1.0);\nfloat local=fract(coord*u_ribCount)*2.0-1.0;\nfloat gamma=mix(1.7,1.0,sharp);\nfloat lens=sign(local)*pow(abs(local),gamma);\nvec2 d=dir*(-lens)*u_strength;\ndisp=vec2(d.x/u_aspect,d.y);\nfloat seam=abs(local);\ntint=vec3(1.0-pow(seam,mix(1.6,5.0,sharp))*mix(0.35,0.6,sharp));\nadd=vec3((1.0-smoothstep(0.0,0.4,seam))*0.16*(0.55+0.45*sharp));\n}\ngl_FragColor=vec4(clamp(texture2D(u_texture,clamp(uv+disp,0.0,1.0)).rgb*tint+add,0.0,1.0),1.0);\n}';
 
     /* ═══════════════════════════════════════
      * KDNAGradient - WebGL
