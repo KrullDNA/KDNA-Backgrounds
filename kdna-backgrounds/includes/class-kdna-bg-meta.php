@@ -349,6 +349,10 @@ class KDNA_BG_Meta {
         $rib_count  = get_post_meta( $post->ID, '_kdna_bg_rib_count', true );
         $rib_angle  = get_post_meta( $post->ID, '_kdna_bg_rib_angle', true );
         $rib_sharp  = get_post_meta( $post->ID, '_kdna_bg_rib_sharp', true );
+        $rib_hi_w   = get_post_meta( $post->ID, '_kdna_bg_rib_hi_width', true );
+        $rib_hi_s   = get_post_meta( $post->ID, '_kdna_bg_rib_hi_strength', true );
+        $rib_sh_w   = get_post_meta( $post->ID, '_kdna_bg_rib_sh_width', true );
+        $rib_sh_s   = get_post_meta( $post->ID, '_kdna_bg_rib_sh_strength', true );
 
         $glass_type = '' !== $glass_type ? $glass_type : 'none';
         $strength   = '' !== $strength ? floatval( $strength ) : 0;
@@ -357,6 +361,10 @@ class KDNA_BG_Meta {
         $rib_count  = '' !== $rib_count ? intval( $rib_count ) : 40;
         $rib_angle  = '' !== $rib_angle ? floatval( $rib_angle ) : 90;
         $rib_sharp  = '' !== $rib_sharp ? floatval( $rib_sharp ) : 0;
+        $rib_hi_w   = '' !== $rib_hi_w ? floatval( $rib_hi_w ) : 25;
+        $rib_hi_s   = '' !== $rib_hi_s ? floatval( $rib_hi_s ) : 40;
+        $rib_sh_w   = '' !== $rib_sh_w ? floatval( $rib_sh_w ) : 50;
+        $rib_sh_s   = '' !== $rib_sh_s ? floatval( $rib_sh_s ) : 60;
         ?>
         <p class="description" style="margin-bottom:12px;">
             <?php esc_html_e( 'Optionally warp the gradient so it looks like it is viewed through textured glass. Choose a glass type, then set the refraction strength. Leave strength at 0 (or glass type None) to turn the effect off entirely.', 'kdna-backgrounds' ); ?>
@@ -424,7 +432,39 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_rib_sharp" name="kdna_bg_rib_sharp" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sharp ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-sharp-val"><?php echo esc_html( $rib_sharp ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How crisp the ribs are. 0 = soft, rounded flutes; higher sharpens them toward hard, definite lines with flat facets and crisp edges between them.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How the flute is shaped. 0 = soft, rounded flutes; higher flattens them toward flat facets with a near-linear lens ramp. (The brightness of the ribs is set by the Highlight and Shadow sliders below.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+                <th><label for="kdna_bg_rib_hi_width"><?php esc_html_e( 'Highlight Width', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_rib_hi_width" name="kdna_bg_rib_hi_width" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_hi_w ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-rib-hi-width-val"><?php echo esc_html( $rib_hi_w ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How wide the bright highlight down the centre of each rib is. Low = a thin glint, high = a broad sheen.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+                <th><label for="kdna_bg_rib_hi_strength"><?php esc_html_e( 'Highlight Strength', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_rib_hi_strength" name="kdna_bg_rib_hi_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_hi_s ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-rib-hi-strength-val"><?php echo esc_html( $rib_hi_s ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How bright the centre highlight gets. 0 = none. The highlight scales with the colour behind the glass, so it stays invisible over black.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+                <th><label for="kdna_bg_rib_sh_width"><?php esc_html_e( 'Shadow Width', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_rib_sh_width" name="kdna_bg_rib_sh_width" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sh_w ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-rib-sh-width-val"><?php echo esc_html( $rib_sh_w ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How wide the dark seam between ribs is. Low = a crisp thin line, high = a broad, soft shadow.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+                <th><label for="kdna_bg_rib_sh_strength"><?php esc_html_e( 'Shadow Strength', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_rib_sh_strength" name="kdna_bg_rib_sh_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sh_s ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-rib-sh-strength-val"><?php echo esc_html( $rib_sh_s ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How dark the seams between ribs get. 0 = none. Like the highlight, it scales with the colour behind the glass, so it disappears over black.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
         </table>
@@ -512,6 +552,11 @@ class KDNA_BG_Meta {
 
         $rib_sharp = isset( $_POST['kdna_bg_rib_sharp'] ) ? floatval( $_POST['kdna_bg_rib_sharp'] ) : 0;
         update_post_meta( $post_id, '_kdna_bg_rib_sharp', max( 0, min( 100, $rib_sharp ) ) );
+
+        update_post_meta( $post_id, '_kdna_bg_rib_hi_width', isset( $_POST['kdna_bg_rib_hi_width'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_rib_hi_width'] ) ) ) : 25 );
+        update_post_meta( $post_id, '_kdna_bg_rib_hi_strength', isset( $_POST['kdna_bg_rib_hi_strength'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_rib_hi_strength'] ) ) ) : 40 );
+        update_post_meta( $post_id, '_kdna_bg_rib_sh_width', isset( $_POST['kdna_bg_rib_sh_width'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_rib_sh_width'] ) ) ) : 50 );
+        update_post_meta( $post_id, '_kdna_bg_rib_sh_strength', isset( $_POST['kdna_bg_rib_sh_strength'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_rib_sh_strength'] ) ) ) : 60 );
 
         /* Colour shapes */
         $shape_style = isset( $_POST['kdna_bg_shape_style'] ) ? sanitize_text_field( wp_unslash( $_POST['kdna_bg_shape_style'] ) ) : 'wash';
