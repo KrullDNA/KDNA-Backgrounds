@@ -440,7 +440,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_rib_hi_width" name="kdna_bg_rib_hi_width" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_hi_w ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-hi-width-val"><?php echo esc_html( $rib_hi_w ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How wide the bright highlight down the centre of each rib is. Low = a thin glint, high = a broad sheen.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How far the highlight on the right side of each flute reaches in from the right edge. Low = a thin glint at the edge, 100% = a gradient across the whole flute.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-glass-row" data-glass-group="fluted">
@@ -448,7 +448,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_rib_hi_strength" name="kdna_bg_rib_hi_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_hi_s ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-hi-strength-val"><?php echo esc_html( $rib_hi_s ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How bright the centre highlight gets. 0 = none. The highlight scales with the colour behind the glass, so it stays invisible over black.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How bright the right-side highlight gets. 0 = none. The highlight scales with the colour behind the glass, so it stays invisible over black.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-glass-row" data-glass-group="fluted">
@@ -456,7 +456,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_rib_sh_width" name="kdna_bg_rib_sh_width" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sh_w ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-sh-width-val"><?php echo esc_html( $rib_sh_w ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How wide the dark seam between ribs is. Low = a crisp thin line, high = a broad, soft shadow.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How far the shadow on the left side of each flute reaches in from the left edge. Low = a crisp thin line at the edge, 100% = the shadow fades all the way from the left edge across to the right.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-glass-row" data-glass-group="fluted">
@@ -464,7 +464,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_rib_sh_strength" name="kdna_bg_rib_sh_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sh_s ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-sh-strength-val"><?php echo esc_html( $rib_sh_s ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How dark the seams between ribs get. 0 = none. Like the highlight, it scales with the colour behind the glass, so it disappears over black.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How dark the left-side shadow gets. 0 = none. Like the highlight, it scales with the colour behind the glass, so it disappears over black.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
         </table>

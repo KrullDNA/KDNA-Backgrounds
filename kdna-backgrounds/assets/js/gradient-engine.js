@@ -1,5 +1,5 @@
 /**
- * KDNA Gradient Engine v2.1.9
+ * KDNA Gradient Engine v2.1.10
  * WebGL mesh gradient with optional glass refraction second pass,
  * and a Canvas 2D fallback.
  */
@@ -269,7 +269,7 @@
      * ramp and is shaded as a rounded glass rod, for true reeded glass. */
     var shaderRefractVertex = 'precision highp float;\nattribute vec2 a_pos;\nvarying vec2 v_uv;\nvoid main(){v_uv=a_pos*0.5+0.5;gl_Position=vec4(a_pos,0.0,1.0);}';
 
-    var shaderRefractMain = 'varying vec2 v_uv;\nuniform sampler2D u_texture;\nuniform float u_aspect;\nuniform float u_time;\nuniform int u_glassType;\nuniform float u_strength;\nuniform float u_scale;\nuniform float u_rippleSpeed;\nuniform float u_ribCount;\nuniform float u_ribAngle;\nuniform float u_ribSharp;\nuniform float u_hiWidth;\nuniform float u_hiStr;\nuniform float u_shWidth;\nuniform float u_shStr;\nuniform float u_seed;\nvoid main(){\nvec2 uv=v_uv;\nvec2 disp=vec2(0.0);\nfloat gain=1.0;\nif(u_glassType==1){\nfloat freq=mix(18.0,1.5,clamp((u_scale-1.0)/49.0,0.0,1.0));\nvec2 nc=vec2(uv.x*u_aspect,uv.y)*freq;\nfloat t=u_time*u_rippleSpeed*0.00005;\nfloat nx=snoise(vec3(nc+u_seed,t));\nfloat ny=snoise(vec3(nc+u_seed+37.3,t+19.1));\ndisp=vec2(nx,ny)*u_strength;\n}else if(u_glassType==2){\n/* Fluted / reeded glass: an array of vertical cylindrical-lens ribs.\n   Within each rib the gradient is swept by a sawtooth ramp, so a\n   compressed slice of the colours repeats per rib (as when looking\n   through real reeded glass), and each rib is shaded like a rounded\n   glass rod: bright down the centre, darkening into the seams between\n   ribs. Rib Sharpness morphs the rod from a soft, round flute (gentle\n   ramp, soft seams) toward a flat-faceted prism (near-linear ramp,\n   crisp seam lines). The shading is purely multiplicative (a gain on\n   the sampled colour), so it scales with whatever is behind the glass:\n   over black it stays black and the ribs disappear, and the centre\n   highlight only brightens where there is real colour/light to catch,\n   never painting lines onto dark areas. Highlight/Shadow Width and\n   Strength are independent sliders; Rib Sharpness now only shapes the\n   lens (flute) profile. */\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat ca=cos(u_ribAngle);\nfloat sa=sin(u_ribAngle);\nfloat coord=p.x*sa+p.y*ca;\nvec2 dir=vec2(sa,ca);\nfloat sharp=clamp(u_ribSharp,0.0,1.0);\nfloat local=fract(coord*u_ribCount)*2.0-1.0;\nfloat gamma=mix(1.7,1.0,sharp);\nfloat lens=sign(local)*pow(abs(local),gamma);\nvec2 d=dir*(-lens)*u_strength;\ndisp=vec2(d.x/u_aspect,d.y);\nfloat seam=abs(local);\nfloat shade=1.0-pow(seam,u_shWidth)*u_shStr;\nfloat hi=(1.0-smoothstep(0.0,u_hiWidth,seam))*u_hiStr;\ngain=shade*(1.0+hi);\n}\ngl_FragColor=vec4(clamp(texture2D(u_texture,clamp(uv+disp,0.0,1.0)).rgb*gain,0.0,1.0),1.0);\n}';
+    var shaderRefractMain = 'varying vec2 v_uv;\nuniform sampler2D u_texture;\nuniform float u_aspect;\nuniform float u_time;\nuniform int u_glassType;\nuniform float u_strength;\nuniform float u_scale;\nuniform float u_rippleSpeed;\nuniform float u_ribCount;\nuniform float u_ribAngle;\nuniform float u_ribSharp;\nuniform float u_hiWidth;\nuniform float u_hiStr;\nuniform float u_shWidth;\nuniform float u_shStr;\nuniform float u_seed;\nvoid main(){\nvec2 uv=v_uv;\nvec2 disp=vec2(0.0);\nfloat gain=1.0;\nif(u_glassType==1){\nfloat freq=mix(18.0,1.5,clamp((u_scale-1.0)/49.0,0.0,1.0));\nvec2 nc=vec2(uv.x*u_aspect,uv.y)*freq;\nfloat t=u_time*u_rippleSpeed*0.00005;\nfloat nx=snoise(vec3(nc+u_seed,t));\nfloat ny=snoise(vec3(nc+u_seed+37.3,t+19.1));\ndisp=vec2(nx,ny)*u_strength;\n}else if(u_glassType==2){\n/* Fluted / reeded glass: an array of vertical cylindrical-lens ribs.\n   Within each rib the gradient is swept by a sawtooth ramp, so a\n   compressed slice of the colours repeats per rib (as when looking\n   through real reeded glass), and each rib is shaded like a rounded\n   glass rod lit from the right: a shadow on the left side of each flute\n   fading rightward, and a highlight on the right side fading leftward,\n   set by independent Width + Strength sliders (Width is how far the band\n   reaches across the flute, so Shadow Width 100% fades all the way from\n   the left edge to the right). Rib Sharpness morphs the lens (flute)\n   profile from a soft, round flute toward a flat-faceted prism. The\n   shading is purely multiplicative, so it scales with whatever is behind\n   the glass: over black it stays black and the ribs disappear, and the\n   highlight only brightens where there is real colour to catch. With\n   both strengths at 0 there is no shading line at all. */\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat ca=cos(u_ribAngle);\nfloat sa=sin(u_ribAngle);\nfloat coord=p.x*sa+p.y*ca;\nvec2 dir=vec2(sa,ca);\nfloat sharp=clamp(u_ribSharp,0.0,1.0);\nfloat local=fract(coord*u_ribCount)*2.0-1.0;\nfloat gamma=mix(1.7,1.0,sharp);\nfloat lens=sign(local)*pow(abs(local),gamma);\nvec2 d=dir*(-lens)*u_strength;\ndisp=vec2(d.x/u_aspect,d.y);\nfloat t=local*0.5+0.5;\nfloat dk=(1.0-smoothstep(0.0,u_shWidth,t))*u_shStr;\nfloat lt=smoothstep(1.0-u_hiWidth,1.0,t)*u_hiStr;\ngain=(1.0-dk)*(1.0+lt);\n}\ngl_FragColor=vec4(clamp(texture2D(u_texture,clamp(uv+disp,0.0,1.0)).rgb*gain,0.0,1.0),1.0);\n}';
 
     /* ═══════════════════════════════════════
      * KDNAGradient - WebGL
@@ -558,14 +558,15 @@
             ribCount:    parseFloat(cfg.ribCount) || 40,
             ribAngle:    (parseFloat(cfg.ribAngle) || 0) * Math.PI / 180,
             ribSharp:    (cfg.ribSharp != null ? parseFloat(cfg.ribSharp) : 0) / 100,
-            /* Rib shading: Highlight/Shadow Width + Strength sliders (0-100)
-               mapped to shader units. Width controls the band size (highlight
-               edge / shadow falloff exponent), Strength its intensity. The
-               shading is multiplicative, so it stays invisible over black. */
-            hiWidth:     mix01(0.05, 0.6, (cfg.ribHiWidth != null ? parseFloat(cfg.ribHiWidth) : 25) / 100),
-            hiStr:       (cfg.ribHiStrength != null ? parseFloat(cfg.ribHiStrength) : 40) / 100 * 0.5,
-            shWidth:     mix01(8.0, 1.2, (cfg.ribShWidth != null ? parseFloat(cfg.ribShWidth) : 50) / 100),
-            shStr:       (cfg.ribShStrength != null ? parseFloat(cfg.ribShStrength) : 60) / 100 * 0.8,
+            /* Rib shading: directional, lit from the right. Width is how far
+               the band reaches across the flute (0.05 = a thin edge band,
+               1.0 = the full flute width); Strength is its intensity. Shadow
+               sits on the left edge fading right, highlight on the right edge
+               fading left. Multiplicative, so it stays invisible over black. */
+            hiWidth:     mix01(0.05, 1.0, (cfg.ribHiWidth != null ? parseFloat(cfg.ribHiWidth) : 25) / 100),
+            hiStr:       (cfg.ribHiStrength != null ? parseFloat(cfg.ribHiStrength) : 40) / 100 * 0.6,
+            shWidth:     mix01(0.05, 1.0, (cfg.ribShWidth != null ? parseFloat(cfg.ribShWidth) : 50) / 100),
+            shStr:       (cfg.ribShStrength != null ? parseFloat(cfg.ribShStrength) : 60) / 100 * 0.9,
             seed:        (cfg.seed || 5) * 3.7
         };
 
