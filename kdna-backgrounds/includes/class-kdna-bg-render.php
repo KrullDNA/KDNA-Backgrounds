@@ -35,6 +35,10 @@ class KDNA_BG_Render {
         $rib_count       = get_post_meta( $post_id, '_kdna_bg_rib_count', true );
         $rib_angle       = get_post_meta( $post_id, '_kdna_bg_rib_angle', true );
         $rib_sharp       = get_post_meta( $post_id, '_kdna_bg_rib_sharp', true );
+        $rib_hi_width    = get_post_meta( $post_id, '_kdna_bg_rib_hi_width', true );
+        $rib_hi_strength = get_post_meta( $post_id, '_kdna_bg_rib_hi_strength', true );
+        $rib_sh_width    = get_post_meta( $post_id, '_kdna_bg_rib_sh_width', true );
+        $rib_sh_strength = get_post_meta( $post_id, '_kdna_bg_rib_sh_strength', true );
 
         /* Shape controls */
         $shape_style  = get_post_meta( $post_id, '_kdna_bg_shape_style', true );
@@ -74,6 +78,10 @@ class KDNA_BG_Render {
             'ribCount'        => '' !== $rib_count ? intval( $rib_count ) : 40,
             'ribAngle'        => '' !== $rib_angle ? floatval( $rib_angle ) : 90,
             'ribSharp'        => '' !== $rib_sharp ? floatval( $rib_sharp ) : 0,
+            'ribHiWidth'      => '' !== $rib_hi_width ? floatval( $rib_hi_width ) : 25,
+            'ribHiStrength'   => '' !== $rib_hi_strength ? floatval( $rib_hi_strength ) : 40,
+            'ribShWidth'      => '' !== $rib_sh_width ? floatval( $rib_sh_width ) : 50,
+            'ribShStrength'   => '' !== $rib_sh_strength ? floatval( $rib_sh_strength ) : 60,
             'shapeStyle'      => '' !== $shape_style ? $shape_style : 'wash',
             'dominantBg'      => '1' === $dominant_bg,
             'stretch'         => '' !== $stretch ? floatval( $stretch ) : 0,
