@@ -201,9 +201,9 @@ class KDNA_BG_Meta {
                     <select id="kdna_bg_shape_style" name="kdna_bg_shape_style">
                         <option value="wash" <?php selected( $shape_style, 'wash' ); ?>><?php esc_html_e( 'Wash (even all-over blend)', 'kdna-backgrounds' ); ?></option>
                         <option value="concentric" <?php selected( $shape_style, 'concentric' ); ?>><?php esc_html_e( 'Concentric (animated radiating rings)', 'kdna-backgrounds' ); ?></option>
-                        <option value="bands" <?php selected( $shape_style, 'bands' ); ?>><?php esc_html_e( 'Bands (fanned, sweeping bands)', 'kdna-backgrounds' ); ?></option>
+                        <option value="bands" <?php selected( $shape_style, 'bands' ); ?>><?php esc_html_e( 'Bands (perspective fan, sweeping)', 'kdna-backgrounds' ); ?></option>
                     </select>
-                    <p class="description"><?php esc_html_e( 'Wash is the standard all-over blend. Concentric keeps colour 1 as the dark background and sends the other colours out as smooth rings that radiate and loop, on one or more drifting shapes. Bands paints the colours as soft bands that fan out from below the bottom edge (bunched at the bottom, splayed at the top) and slowly sweep, with the tops moving further than the bottoms; use Flow Angle to lean the fan and Radiate Speed for the sweep.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Wash is the standard all-over blend. Concentric keeps colour 1 as the dark background and sends the other colours out as smooth rings that radiate and loop, on one or more drifting shapes. Bands paints the colours as soft bands radiating from a pivot just off the left edge, like a fan seen in perspective: the near (left) ends barely move while the far (right) ends sweep faster, recycling downward off the bottom as new bands appear at the top. Each band feathers into its neighbours (Colour Blend) and a Wash-style gradient drifts colour along the length of each band (Flow Amount). Use Flow Angle to lean the fan, Radiate Speed for the sweep, and Min/Max Width for the band density.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr>
@@ -440,7 +440,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_rib_hi_width" name="kdna_bg_rib_hi_width" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_hi_w ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-hi-width-val"><?php echo esc_html( $rib_hi_w ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How wide the bright highlight down the centre of each rib is. Low = a thin glint, high = a broad sheen.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How far the highlight on the right side of each flute reaches in from the right edge. Low = a thin glint at the edge, 100% = a gradient across the whole flute.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-glass-row" data-glass-group="fluted">
@@ -448,7 +448,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_rib_hi_strength" name="kdna_bg_rib_hi_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_hi_s ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-hi-strength-val"><?php echo esc_html( $rib_hi_s ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How bright the centre highlight gets. 0 = none. The highlight scales with the colour behind the glass, so it stays invisible over black.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How bright the right-side highlight gets. 0 = none. The highlight scales with the colour behind the glass, so it stays invisible over black.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-glass-row" data-glass-group="fluted">
@@ -456,7 +456,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_rib_sh_width" name="kdna_bg_rib_sh_width" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sh_w ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-sh-width-val"><?php echo esc_html( $rib_sh_w ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How wide the dark seam between ribs is. Low = a crisp thin line, high = a broad, soft shadow.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How far the shadow on the left side of each flute reaches in from the left edge. Low = a crisp thin line at the edge, 100% = the shadow fades all the way from the left edge across to the right.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-glass-row" data-glass-group="fluted">
@@ -464,7 +464,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_rib_sh_strength" name="kdna_bg_rib_sh_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sh_s ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-sh-strength-val"><?php echo esc_html( $rib_sh_s ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How dark the seams between ribs get. 0 = none. Like the highlight, it scales with the colour behind the glass, so it disappears over black.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How dark the left-side shadow gets. 0 = none. Like the highlight, it scales with the colour behind the glass, so it disappears over black.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
         </table>
