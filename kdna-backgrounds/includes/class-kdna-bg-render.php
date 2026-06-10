@@ -52,6 +52,7 @@ class KDNA_BG_Render {
         $band_min     = get_post_meta( $post_id, '_kdna_bg_band_min', true );
         $band_max     = get_post_meta( $post_id, '_kdna_bg_band_max', true );
         $band_vary    = get_post_meta( $post_id, '_kdna_bg_band_vary', true );
+        $band_bg      = get_post_meta( $post_id, '_kdna_bg_band_bg_colour', true );
         $grain        = get_post_meta( $post_id, '_kdna_bg_grain', true );
         $sheen        = get_post_meta( $post_id, '_kdna_bg_sheen', true );
         $flow_amount = get_post_meta( $post_id, '_kdna_bg_flow_amount', true );
@@ -93,6 +94,7 @@ class KDNA_BG_Render {
             'bandMin'         => '' !== $band_min ? floatval( $band_min ) : 25,
             'bandMax'         => '' !== $band_max ? floatval( $band_max ) : 60,
             'bandVary'        => '' !== $band_vary ? floatval( $band_vary ) : 50,
+            'bandBgColor'     => '' !== $band_bg ? $band_bg : '',
             'grain'           => '' !== $grain ? floatval( $grain ) : 0,
             'sheen'           => '' !== $sheen ? floatval( $sheen ) : 0,
             'flowAmount'      => '' !== $flow_amount ? floatval( $flow_amount ) : 0,
