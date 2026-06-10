@@ -203,9 +203,9 @@ class KDNA_BG_Meta {
                     <select id="kdna_bg_shape_style" name="kdna_bg_shape_style">
                         <option value="wash" <?php selected( $shape_style, 'wash' ); ?>><?php esc_html_e( 'Wash (even all-over blend)', 'kdna-backgrounds' ); ?></option>
                         <option value="concentric" <?php selected( $shape_style, 'concentric' ); ?>><?php esc_html_e( 'Concentric (animated radiating rings)', 'kdna-backgrounds' ); ?></option>
-                        <option value="bands" <?php selected( $shape_style, 'bands' ); ?>><?php esc_html_e( 'Bands (flowing wavy ribbons)', 'kdna-backgrounds' ); ?></option>
+                        <option value="bands" <?php selected( $shape_style, 'bands' ); ?>><?php esc_html_e( 'Bands (wavy perspective fan)', 'kdna-backgrounds' ); ?></option>
                     </select>
-                    <p class="description"><?php esc_html_e( 'Wash is the standard all-over blend. Concentric keeps colour 1 as the dark background and sends the other colours out as smooth rings that radiate and loop, on one or more drifting shapes. Bands paints the colours as soft, wavy ribbons that undulate and flow like an aurora curtain, with the dark Background Colour showing through the troughs between them. The hue shifts along each ribbon as it flows. Use Flow Angle to aim the ribbons (try a diagonal), Colour Repeats for how many, Waviness and Wave Scale for the undulation, Ribbon Thickness for how far apart they sit, Colour Blend for softness, and Radiate Speed for the flow.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Wash is the standard all-over blend. Concentric keeps colour 1 as the dark background and sends the other colours out as smooth rings that radiate and loop, on one or more drifting shapes. Bands paints the colours as a wavy fan of bands seen in perspective (tighter on one side, splayed on the other), separated by the dark Background Colour. Within each band the colours radiate out from its centre-line to its edges and animate, and each band glows softly into the gap beside it. Use Flow Angle to rotate the fan, Perspective for the fan strength, Waviness for the undulation, Band Thickness for how far apart the bands sit, Colour Repeats for the colour steps, Colour Blend for softness, and Radiate Speed for the radiate.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr>
@@ -239,7 +239,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_ring_count" name="kdna_bg_ring_count" min="1" max="6" step="1" value="<?php echo esc_attr( $ring_count ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-ring-count-val"><?php echo esc_html( $ring_count ); ?></span>
-                    <p class="description"><?php esc_html_e( 'In Concentric, how many times the colour set repeats within one shape as it radiates out. In Bands, how many ribbons run across the canvas (higher = more, thinner ribbons).', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'In Concentric, how many times the colour set repeats within one shape as it radiates out. In Bands, how many colour steps radiate from the centre-line of each band to its edge (1 = one colour emerging at the centre and one on the outside).', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="bands">
@@ -250,27 +250,27 @@ class KDNA_BG_Meta {
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="bands">
-                <th><label for="kdna_bg_band_min"><?php esc_html_e( 'Ribbon Thickness', 'kdna-backgrounds' ); ?></label></th>
+                <th><label for="kdna_bg_band_min"><?php esc_html_e( 'Band Thickness', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_band_min" name="kdna_bg_band_min" min="1" max="100" step="1" value="<?php echo esc_attr( $band_min ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-band-min-val"><?php echo esc_html( $band_min ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How wide the lit ribbons are versus the dark gaps between them. Low = thin ribbons with lots of background showing through; high = fat ribbons that nearly touch. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How wide the bands are versus the dark gaps between them. Low = thin bands with lots of background showing through; high = fat bands that nearly touch. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="bands">
-                <th><label for="kdna_bg_band_max"><?php esc_html_e( 'Wave Scale', 'kdna-backgrounds' ); ?></label></th>
+                <th><label for="kdna_bg_band_max"><?php esc_html_e( 'Waviness', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_band_max" name="kdna_bg_band_max" min="1" max="100" step="1" value="<?php echo esc_attr( $band_max ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-band-max-val"><?php echo esc_html( $band_max ); ?></span>
-                    <p class="description"><?php esc_html_e( 'The size of the undulations in the ribbons. Low = long, lazy waves; high = tighter, busier waves. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How much the bands wave and undulate as they fan out. 0 = clean straight fan; higher = wavy, flowing bands. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="bands">
-                <th><label for="kdna_bg_band_vary"><?php esc_html_e( 'Waviness', 'kdna-backgrounds' ); ?></label></th>
+                <th><label for="kdna_bg_band_vary"><?php esc_html_e( 'Perspective', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_band_vary" name="kdna_bg_band_vary" min="0" max="100" step="1" value="<?php echo esc_attr( $band_vary ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-band-vary-val"><?php echo esc_html( $band_vary ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How much the ribbons undulate and wave. 0 = nearly straight; higher = strong, flowing curves like an aurora. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How strong the fan perspective is. Low = nearly parallel bands; high = a strong fan that converges tightly on one side and splays on the other. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="concentric bands">
