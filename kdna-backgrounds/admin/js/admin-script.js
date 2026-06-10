@@ -50,6 +50,7 @@
             shapeCount:      numVal('#kdna_bg_shape_count', 1),
             colorBlend:      numVal('#kdna_bg_color_blend', 70),
             drift:           numVal('#kdna_bg_drift', 40),
+            bandBgColor:     $('#kdna_bg_band_bg_colour').val() || '',
             bandMin:         numVal('#kdna_bg_band_min', 25),
             bandMax:         numVal('#kdna_bg_band_max', 60),
             bandVary:        numVal('#kdna_bg_band_vary', 50),
@@ -158,6 +159,17 @@
         var $list = $('#kdna-bg-colour-list');
 
         initPickers($list);
+
+        /* Single colour pickers (e.g. Bands Background Colour) live outside
+           the gradient list and refresh the preview on change. */
+        $('.kdna-bg-single-colour').each(function () {
+            if (!$(this).closest('.wp-picker-container').length) {
+                $(this).wpColorPicker({
+                    change: function () { refreshPreview(); },
+                    clear: function () { refreshPreview(); }
+                });
+            }
+        });
 
         $list.sortable({
             handle: '.kdna-bg-drag-handle',
