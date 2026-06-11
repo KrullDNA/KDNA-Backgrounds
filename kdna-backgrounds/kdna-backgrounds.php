@@ -2,7 +2,7 @@
 /**
  * Plugin Name: KDNA Backgrounds
  * Description: Animated mesh gradient backgrounds using WebGL with Canvas 2D fallback. Create reusable gradient presets and apply them to any Elementor container via the Advanced tab.
- * Version: 2.1.20
+ * Version: 2.1.21
  * Author: KDNA
  * Text Domain: kdna-backgrounds
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'KDNA_BG_VERSION', '2.1.20' );
+define( 'KDNA_BG_VERSION', '2.1.21' );
 define( 'KDNA_BG_PATH', plugin_dir_path( __FILE__ ) );
 define( 'KDNA_BG_URL', plugin_dir_url( __FILE__ ) );
 
