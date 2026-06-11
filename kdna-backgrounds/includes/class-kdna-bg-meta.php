@@ -166,6 +166,7 @@ class KDNA_BG_Meta {
         $band_min    = get_post_meta( $post->ID, '_kdna_bg_band_min', true );
         $band_max    = get_post_meta( $post->ID, '_kdna_bg_band_max', true );
         $band_vary   = get_post_meta( $post->ID, '_kdna_bg_band_vary', true );
+        $band_move   = get_post_meta( $post->ID, '_kdna_bg_band_move', true );
         $band_bg     = get_post_meta( $post->ID, '_kdna_bg_band_bg_colour', true );
         $grain       = get_post_meta( $post->ID, '_kdna_bg_grain', true );
         $sheen       = get_post_meta( $post->ID, '_kdna_bg_sheen', true );
@@ -185,6 +186,7 @@ class KDNA_BG_Meta {
         $band_min    = '' !== $band_min ? floatval( $band_min ) : 25;
         $band_max    = '' !== $band_max ? floatval( $band_max ) : 60;
         $band_vary   = '' !== $band_vary ? floatval( $band_vary ) : 50;
+        $band_move   = '' !== $band_move ? floatval( $band_move ) : 40;
         $band_bg     = '' !== $band_bg ? $band_bg : '#0a0a14';
         $grain       = '' !== $grain ? floatval( $grain ) : 0;
         $sheen       = '' !== $sheen ? floatval( $sheen ) : 0;
@@ -240,6 +242,14 @@ class KDNA_BG_Meta {
                     <input type="range" id="kdna_bg_ring_count" name="kdna_bg_ring_count" min="1" max="6" step="1" value="<?php echo esc_attr( $ring_count ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-ring-count-val"><?php echo esc_html( $ring_count ); ?></span>
                     <p class="description"><?php esc_html_e( 'In Concentric, how many times the colour set repeats within one shape as it radiates out. In Bands, how many colour steps radiate from the centre-line of each band to its edge (1 = one colour emerging at the centre and one on the outside).', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-shape-row" data-shape-group="bands">
+                <th><label for="kdna_bg_band_move"><?php esc_html_e( 'Band Movement', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_band_move" name="kdna_bg_band_move" min="0" max="100" step="1" value="<?php echo esc_attr( $band_move ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-band-move-val"><?php echo esc_html( $band_move ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How fast the whole fan of bands travels across the canvas. 0 = the bands hold still; higher = they sweep across faster. (This is separate from Radiate Speed, which moves the colours within the bands.) (Bands style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="bands">
@@ -600,6 +610,7 @@ class KDNA_BG_Meta {
         update_post_meta( $post_id, '_kdna_bg_band_min', isset( $_POST['kdna_bg_band_min'] ) ? max( 1, min( 100, floatval( $_POST['kdna_bg_band_min'] ) ) ) : 25 );
         update_post_meta( $post_id, '_kdna_bg_band_max', isset( $_POST['kdna_bg_band_max'] ) ? max( 1, min( 100, floatval( $_POST['kdna_bg_band_max'] ) ) ) : 60 );
         update_post_meta( $post_id, '_kdna_bg_band_vary', isset( $_POST['kdna_bg_band_vary'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_band_vary'] ) ) ) : 50 );
+        update_post_meta( $post_id, '_kdna_bg_band_move', isset( $_POST['kdna_bg_band_move'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_band_move'] ) ) ) : 40 );
 
         $band_bg = isset( $_POST['kdna_bg_band_bg_colour'] ) ? sanitize_hex_color( $_POST['kdna_bg_band_bg_colour'] ) : '';
         update_post_meta( $post_id, '_kdna_bg_band_bg_colour', $band_bg ? $band_bg : '#0a0a14' );
