@@ -167,6 +167,8 @@ class KDNA_BG_Meta {
         $band_max    = get_post_meta( $post->ID, '_kdna_bg_band_max', true );
         $band_vary   = get_post_meta( $post->ID, '_kdna_bg_band_vary', true );
         $band_move   = get_post_meta( $post->ID, '_kdna_bg_band_move', true );
+        $band_fade   = get_post_meta( $post->ID, '_kdna_bg_band_fade', true );
+        $band_fade_v = get_post_meta( $post->ID, '_kdna_bg_band_fade_var', true );
         $band_bg     = get_post_meta( $post->ID, '_kdna_bg_band_bg_colour', true );
         $grain       = get_post_meta( $post->ID, '_kdna_bg_grain', true );
         $sheen       = get_post_meta( $post->ID, '_kdna_bg_sheen', true );
@@ -187,6 +189,8 @@ class KDNA_BG_Meta {
         $band_max    = '' !== $band_max ? floatval( $band_max ) : 60;
         $band_vary   = '' !== $band_vary ? floatval( $band_vary ) : 50;
         $band_move   = '' !== $band_move ? floatval( $band_move ) : 40;
+        $band_fade   = '' !== $band_fade ? floatval( $band_fade ) : 0;
+        $band_fade_v = '' !== $band_fade_v ? floatval( $band_fade_v ) : 50;
         $band_bg     = '' !== $band_bg ? $band_bg : '#0a0a14';
         $grain       = '' !== $grain ? floatval( $grain ) : 0;
         $sheen       = '' !== $sheen ? floatval( $sheen ) : 0;
@@ -253,6 +257,22 @@ class KDNA_BG_Meta {
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="bands">
+                <th><label for="kdna_bg_band_fade"><?php esc_html_e( 'Transparency', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_band_fade" name="kdna_bg_band_fade" min="0" max="100" step="1" value="<?php echo esc_attr( $band_fade ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-band-fade-val"><?php echo esc_html( $band_fade ); ?></span>
+                    <p class="description"><?php esc_html_e( 'Softly fades parts of the bands away to the Background Colour, blended gently over many pixels like the Wash style. 0 = solid bands; higher = more of the colour fades out. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-shape-row" data-shape-group="bands">
+                <th><label for="kdna_bg_band_fade_var"><?php esc_html_e( 'Transparency Patchiness', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_band_fade_var" name="kdna_bg_band_fade_var" min="0" max="100" step="1" value="<?php echo esc_attr( $band_fade_v ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-band-fade-var-val"><?php echo esc_html( $band_fade_v ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How the fading is spread. Low = large, even, uniform fades; high = smaller, more random patches of transparency. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-shape-row" data-shape-group="bands">
                 <th><label for="kdna_bg_band_bg_colour"><?php esc_html_e( 'Background Colour', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="text" id="kdna_bg_band_bg_colour" name="kdna_bg_band_bg_colour" class="kdna-bg-single-colour" value="<?php echo esc_attr( $band_bg ); ?>" data-default-color="#0a0a14" />
@@ -280,7 +300,7 @@ class KDNA_BG_Meta {
                 <td>
                     <input type="range" id="kdna_bg_band_vary" name="kdna_bg_band_vary" min="0" max="100" step="1" value="<?php echo esc_attr( $band_vary ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-band-vary-val"><?php echo esc_html( $band_vary ); ?></span>
-                    <p class="description"><?php esc_html_e( 'How strong the fan perspective is. Low = nearly parallel bands; high = a strong fan that converges tightly on one side and splays on the other. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'How much the parallel bands converge toward one side, like perspective. 0 = perfectly parallel; higher = the bands fan and bunch toward one side. (Bands style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-shape-row" data-shape-group="concentric bands">
@@ -611,6 +631,8 @@ class KDNA_BG_Meta {
         update_post_meta( $post_id, '_kdna_bg_band_max', isset( $_POST['kdna_bg_band_max'] ) ? max( 1, min( 100, floatval( $_POST['kdna_bg_band_max'] ) ) ) : 60 );
         update_post_meta( $post_id, '_kdna_bg_band_vary', isset( $_POST['kdna_bg_band_vary'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_band_vary'] ) ) ) : 50 );
         update_post_meta( $post_id, '_kdna_bg_band_move', isset( $_POST['kdna_bg_band_move'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_band_move'] ) ) ) : 40 );
+        update_post_meta( $post_id, '_kdna_bg_band_fade', isset( $_POST['kdna_bg_band_fade'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_band_fade'] ) ) ) : 0 );
+        update_post_meta( $post_id, '_kdna_bg_band_fade_var', isset( $_POST['kdna_bg_band_fade_var'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_band_fade_var'] ) ) ) : 50 );
 
         $band_bg = isset( $_POST['kdna_bg_band_bg_colour'] ) ? sanitize_hex_color( $_POST['kdna_bg_band_bg_colour'] ) : '';
         update_post_meta( $post_id, '_kdna_bg_band_bg_colour', $band_bg ? $band_bg : '#0a0a14' );

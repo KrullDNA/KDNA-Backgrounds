@@ -55,6 +55,8 @@
             bandMax:         numVal('#kdna_bg_band_max', 60),
             bandVary:        numVal('#kdna_bg_band_vary', 50),
             bandMove:        numVal('#kdna_bg_band_move', 40),
+            bandFade:        numVal('#kdna_bg_band_fade', 0),
+            bandFadeVar:     numVal('#kdna_bg_band_fade_var', 50),
             flowAmount:      numVal('#kdna_bg_flow_amount', 0),
             flowAngle:       numVal('#kdna_bg_flow_angle', 0),
             definition:      numVal('#kdna_bg_definition', 40),
@@ -244,6 +246,8 @@
                 'kdna_bg_band_max': '#kdna-bg-band-max-val',
                 'kdna_bg_band_vary': '#kdna-bg-band-vary-val',
                 'kdna_bg_band_move': '#kdna-bg-band-move-val',
+                'kdna_bg_band_fade': '#kdna-bg-band-fade-val',
+                'kdna_bg_band_fade_var': '#kdna-bg-band-fade-var-val',
                 'kdna_bg_sheen': '#kdna-bg-sheen-val',
                 'kdna_bg_grain': '#kdna-bg-grain-val'
             };

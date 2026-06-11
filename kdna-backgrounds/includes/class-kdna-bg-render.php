@@ -53,6 +53,8 @@ class KDNA_BG_Render {
         $band_max     = get_post_meta( $post_id, '_kdna_bg_band_max', true );
         $band_vary    = get_post_meta( $post_id, '_kdna_bg_band_vary', true );
         $band_move    = get_post_meta( $post_id, '_kdna_bg_band_move', true );
+        $band_fade    = get_post_meta( $post_id, '_kdna_bg_band_fade', true );
+        $band_fade_v  = get_post_meta( $post_id, '_kdna_bg_band_fade_var', true );
         $band_bg      = get_post_meta( $post_id, '_kdna_bg_band_bg_colour', true );
         $grain        = get_post_meta( $post_id, '_kdna_bg_grain', true );
         $sheen        = get_post_meta( $post_id, '_kdna_bg_sheen', true );
@@ -96,6 +98,8 @@ class KDNA_BG_Render {
             'bandMax'         => '' !== $band_max ? floatval( $band_max ) : 60,
             'bandVary'        => '' !== $band_vary ? floatval( $band_vary ) : 50,
             'bandMove'        => '' !== $band_move ? floatval( $band_move ) : 40,
+            'bandFade'        => '' !== $band_fade ? floatval( $band_fade ) : 0,
+            'bandFadeVar'     => '' !== $band_fade_v ? floatval( $band_fade_v ) : 50,
             'bandBgColor'     => '' !== $band_bg ? $band_bg : '',
             'grain'           => '' !== $grain ? floatval( $grain ) : 0,
             'sheen'           => '' !== $sheen ? floatval( $sheen ) : 0,
