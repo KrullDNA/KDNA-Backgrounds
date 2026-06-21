@@ -416,13 +416,14 @@ class KDNA_BG_Meta {
                         <option value="none" <?php selected( $glass_type, 'none' ); ?>><?php esc_html_e( 'None', 'kdna-backgrounds' ); ?></option>
                         <option value="liquid" <?php selected( $glass_type, 'liquid' ); ?>><?php esc_html_e( 'Liquid (organic ripples)', 'kdna-backgrounds' ); ?></option>
                         <option value="fluted" <?php selected( $glass_type, 'fluted' ); ?>><?php esc_html_e( 'Fluted (regular ribs)', 'kdna-backgrounds' ); ?></option>
+                        <option value="diamond" <?php selected( $glass_type, 'diamond' ); ?>><?php esc_html_e( 'Diamond / Snakeskin (quilted grid)', 'kdna-backgrounds' ); ?></option>
                     </select>
-                    <p class="description"><?php esc_html_e( 'Liquid is random water-like rippling. Fluted is evenly spaced reeded-glass ribs.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Liquid is random water-like rippling. Fluted is evenly spaced reeded-glass ribs. Diamond is a crossed, quilted snakeskin grid embossed over the gradient.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
 
             <!-- Shared: refraction strength (shown for Liquid and Fluted) -->
-            <tr class="kdna-bg-glass-row" data-glass-group="liquid fluted">
+            <tr class="kdna-bg-glass-row" data-glass-group="liquid fluted diamond">
                 <th><label for="kdna_bg_refract_strength"><?php esc_html_e( 'Refraction Strength', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_refract_strength" name="kdna_bg_refract_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $strength ); ?>" />
@@ -450,7 +451,7 @@ class KDNA_BG_Meta {
             </tr>
 
             <!-- Fluted only -->
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
                 <th><label for="kdna_bg_rib_count"><?php esc_html_e( 'Rib Count', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_count" name="kdna_bg_rib_count" min="10" max="120" step="1" value="<?php echo esc_attr( $rib_count ); ?>" />
@@ -458,7 +459,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How many ribs run across the container.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
                 <th><label for="kdna_bg_rib_angle"><?php esc_html_e( 'Rib Angle', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_angle" name="kdna_bg_rib_angle" min="0" max="180" step="1" value="<?php echo esc_attr( $rib_angle ); ?>" />
@@ -466,7 +467,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'Rib orientation in degrees. 0 = horizontal ribs, 90 = vertical ribs, any angle in between works. Fluted ribs are static, the gradient still animates behind them.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
                 <th><label for="kdna_bg_rib_sharp"><?php esc_html_e( 'Rib Sharpness', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_sharp" name="kdna_bg_rib_sharp" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sharp ); ?>" />
@@ -474,7 +475,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How the flute is shaped. 0 = soft, rounded flutes; higher flattens them toward flat facets with a near-linear lens ramp. (The brightness of the ribs is set by the Highlight and Shadow sliders below.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
                 <th><label for="kdna_bg_rib_hi_width"><?php esc_html_e( 'Highlight Width', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_hi_width" name="kdna_bg_rib_hi_width" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_hi_w ); ?>" />
@@ -482,7 +483,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How far the highlight on the right side of each flute reaches in from the right edge. Low = a thin glint at the edge, 100% = a gradient across the whole flute.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
                 <th><label for="kdna_bg_rib_hi_strength"><?php esc_html_e( 'Highlight Strength', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_hi_strength" name="kdna_bg_rib_hi_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_hi_s ); ?>" />
@@ -490,7 +491,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How bright the right-side highlight gets. 0 = none. The highlight scales with the colour behind the glass, so it stays invisible over black.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
                 <th><label for="kdna_bg_rib_sh_width"><?php esc_html_e( 'Shadow Width', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_sh_width" name="kdna_bg_rib_sh_width" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sh_w ); ?>" />
@@ -498,7 +499,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How far the shadow on the left side of each flute reaches in from the left edge. Low = a crisp thin line at the edge, 100% = the shadow fades all the way from the left edge across to the right.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
                 <th><label for="kdna_bg_rib_sh_strength"><?php esc_html_e( 'Shadow Strength', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_sh_strength" name="kdna_bg_rib_sh_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sh_s ); ?>" />
@@ -569,7 +570,7 @@ class KDNA_BG_Meta {
 
         /* Glass refraction */
         $glass_type = isset( $_POST['kdna_bg_glass_type'] ) ? sanitize_text_field( wp_unslash( $_POST['kdna_bg_glass_type'] ) ) : 'none';
-        if ( ! in_array( $glass_type, array( 'none', 'liquid', 'fluted' ), true ) ) {
+        if ( ! in_array( $glass_type, array( 'none', 'liquid', 'fluted', 'diamond' ), true ) ) {
             $glass_type = 'none';
         }
         update_post_meta( $post_id, '_kdna_bg_glass_type', $glass_type );
