@@ -387,6 +387,7 @@ class KDNA_BG_Meta {
         $speed      = get_post_meta( $post->ID, '_kdna_bg_refract_speed', true );
         $rib_count  = get_post_meta( $post->ID, '_kdna_bg_rib_count', true );
         $rib_angle  = get_post_meta( $post->ID, '_kdna_bg_rib_angle', true );
+        $diamond_a  = get_post_meta( $post->ID, '_kdna_bg_diamond_angle', true );
         $rib_sharp  = get_post_meta( $post->ID, '_kdna_bg_rib_sharp', true );
         $rib_hi_w   = get_post_meta( $post->ID, '_kdna_bg_rib_hi_width', true );
         $rib_hi_s   = get_post_meta( $post->ID, '_kdna_bg_rib_hi_strength', true );
@@ -399,6 +400,7 @@ class KDNA_BG_Meta {
         $speed      = '' !== $speed ? floatval( $speed ) : 5;
         $rib_count  = '' !== $rib_count ? intval( $rib_count ) : 40;
         $rib_angle  = '' !== $rib_angle ? floatval( $rib_angle ) : 90;
+        $diamond_a  = '' !== $diamond_a ? floatval( $diamond_a ) : 45;
         $rib_sharp  = '' !== $rib_sharp ? floatval( $rib_sharp ) : 0;
         $rib_hi_w   = '' !== $rib_hi_w ? floatval( $rib_hi_w ) : 25;
         $rib_hi_s   = '' !== $rib_hi_s ? floatval( $rib_hi_s ) : 40;
@@ -465,6 +467,14 @@ class KDNA_BG_Meta {
                     <input type="range" id="kdna_bg_rib_angle" name="kdna_bg_rib_angle" min="0" max="180" step="1" value="<?php echo esc_attr( $rib_angle ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-angle-val"><?php echo esc_html( $rib_angle ); ?></span>
                     <p class="description"><?php esc_html_e( 'Rib orientation in degrees. 0 = horizontal ribs, 90 = vertical ribs, any angle in between works. Fluted ribs are static, the gradient still animates behind them.', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-glass-row" data-glass-group="diamond">
+                <th><label for="kdna_bg_diamond_angle"><?php esc_html_e( 'Side Angle', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_diamond_angle" name="kdna_bg_diamond_angle" min="20" max="70" step="1" value="<?php echo esc_attr( $diamond_a ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-diamond-angle-val"><?php echo esc_html( $diamond_a ); ?></span>
+                    <p class="description"><?php esc_html_e( 'The angle of the diamond sides, in degrees. 45 = square diamonds; higher (50-60) makes them taller than wide; lower makes them wider than tall. (Diamond style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
@@ -589,6 +599,9 @@ class KDNA_BG_Meta {
 
         $rib_angle = isset( $_POST['kdna_bg_rib_angle'] ) ? floatval( $_POST['kdna_bg_rib_angle'] ) : 90;
         update_post_meta( $post_id, '_kdna_bg_rib_angle', max( 0, min( 180, $rib_angle ) ) );
+
+        $diamond_a = isset( $_POST['kdna_bg_diamond_angle'] ) ? floatval( $_POST['kdna_bg_diamond_angle'] ) : 45;
+        update_post_meta( $post_id, '_kdna_bg_diamond_angle', max( 20, min( 70, $diamond_a ) ) );
 
         $rib_sharp = isset( $_POST['kdna_bg_rib_sharp'] ) ? floatval( $_POST['kdna_bg_rib_sharp'] ) : 0;
         update_post_meta( $post_id, '_kdna_bg_rib_sharp', max( 0, min( 100, $rib_sharp ) ) );
