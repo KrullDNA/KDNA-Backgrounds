@@ -35,6 +35,7 @@ class KDNA_BG_Render {
         $rib_count       = get_post_meta( $post_id, '_kdna_bg_rib_count', true );
         $rib_angle       = get_post_meta( $post_id, '_kdna_bg_rib_angle', true );
         $diamond_angle   = get_post_meta( $post_id, '_kdna_bg_diamond_angle', true );
+        $light_move      = get_post_meta( $post_id, '_kdna_bg_light_move', true );
         $rib_sharp       = get_post_meta( $post_id, '_kdna_bg_rib_sharp', true );
         $rib_hi_width    = get_post_meta( $post_id, '_kdna_bg_rib_hi_width', true );
         $rib_hi_strength = get_post_meta( $post_id, '_kdna_bg_rib_hi_strength', true );
@@ -83,6 +84,7 @@ class KDNA_BG_Render {
             'ribCount'        => '' !== $rib_count ? intval( $rib_count ) : 40,
             'ribAngle'        => '' !== $rib_angle ? floatval( $rib_angle ) : 90,
             'diamondAngle'    => '' !== $diamond_angle ? floatval( $diamond_angle ) : 45,
+            'lightMove'       => '' !== $light_move ? floatval( $light_move ) : 30,
             'ribSharp'        => '' !== $rib_sharp ? floatval( $rib_sharp ) : 0,
             'ribHiWidth'      => '' !== $rib_hi_width ? floatval( $rib_hi_width ) : 25,
             'ribHiStrength'   => '' !== $rib_hi_strength ? floatval( $rib_hi_strength ) : 40,
