@@ -489,7 +489,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'Animates the light source so the highlights sweep across the diamonds as if a light is moving over the surface. 0 = a fixed light; higher = faster movement. (Diamond style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond hexagon organic">
                 <th><label for="kdna_bg_rib_sharp"><?php esc_html_e( 'Rib Sharpness', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_sharp" name="kdna_bg_rib_sharp" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sharp ); ?>" />
