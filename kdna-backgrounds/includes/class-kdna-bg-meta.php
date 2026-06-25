@@ -420,14 +420,16 @@ class KDNA_BG_Meta {
                         <option value="none" <?php selected( $glass_type, 'none' ); ?>><?php esc_html_e( 'None', 'kdna-backgrounds' ); ?></option>
                         <option value="liquid" <?php selected( $glass_type, 'liquid' ); ?>><?php esc_html_e( 'Liquid (organic ripples)', 'kdna-backgrounds' ); ?></option>
                         <option value="fluted" <?php selected( $glass_type, 'fluted' ); ?>><?php esc_html_e( 'Fluted (regular ribs)', 'kdna-backgrounds' ); ?></option>
-                        <option value="diamond" <?php selected( $glass_type, 'diamond' ); ?>><?php esc_html_e( 'Diamond / Snakeskin (quilted grid)', 'kdna-backgrounds' ); ?></option>
+                        <option value="diamond" <?php selected( $glass_type, 'diamond' ); ?>><?php esc_html_e( 'Diamond (reflective glass tiles)', 'kdna-backgrounds' ); ?></option>
+                        <option value="hexagon" <?php selected( $glass_type, 'hexagon' ); ?>><?php esc_html_e( 'Hexagon (reflective honeycomb)', 'kdna-backgrounds' ); ?></option>
+                        <option value="organic" <?php selected( $glass_type, 'organic' ); ?>><?php esc_html_e( 'Organic / Leather (random scales)', 'kdna-backgrounds' ); ?></option>
                     </select>
-                    <p class="description"><?php esc_html_e( 'Liquid is random water-like rippling. Fluted is evenly spaced reeded-glass ribs. Diamond is a crossed, quilted snakeskin grid embossed over the gradient.', 'kdna-backgrounds' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Liquid is random water-like rippling. Fluted is evenly spaced reeded-glass ribs. Diamond, Hexagon and Organic are beveled glass tiles (square, honeycomb, or irregular leather-like scales) that reflect the gradient through each cell.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
 
             <!-- Shared: refraction strength (shown for Liquid and Fluted) -->
-            <tr class="kdna-bg-glass-row" data-glass-group="liquid fluted diamond">
+            <tr class="kdna-bg-glass-row" data-glass-group="liquid fluted diamond hexagon organic">
                 <th><label for="kdna_bg_refract_strength"><?php esc_html_e( 'Refraction Strength', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_refract_strength" name="kdna_bg_refract_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $strength ); ?>" />
@@ -455,7 +457,7 @@ class KDNA_BG_Meta {
             </tr>
 
             <!-- Fluted only -->
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond hexagon organic">
                 <th><label for="kdna_bg_rib_count"><?php esc_html_e( 'Rib Count', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_count" name="kdna_bg_rib_count" min="10" max="120" step="1" value="<?php echo esc_attr( $rib_count ); ?>" />
@@ -479,7 +481,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'The angle of the diamond sides, in degrees. 45 = square diamonds; higher (50-60) makes them taller than wide; lower makes them wider than tall. (Diamond style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="diamond">
+            <tr class="kdna-bg-glass-row" data-glass-group="diamond hexagon organic">
                 <th><label for="kdna_bg_light_move"><?php esc_html_e( 'Light Movement', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_light_move" name="kdna_bg_light_move" min="0" max="100" step="1" value="<?php echo esc_attr( $light_move ); ?>" />
@@ -503,7 +505,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How far the highlight on the right side of each flute reaches in from the right edge. Low = a thin glint at the edge, 100% = a gradient across the whole flute.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond hexagon organic">
                 <th><label for="kdna_bg_rib_hi_strength"><?php esc_html_e( 'Highlight Strength', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_hi_strength" name="kdna_bg_rib_hi_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_hi_s ); ?>" />
@@ -519,7 +521,7 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'How far the shadow on the left side of each flute reaches in from the left edge. Low = a crisp thin line at the edge, 100% = the shadow fades all the way from the left edge across to the right.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond hexagon organic">
                 <th><label for="kdna_bg_rib_sh_strength"><?php esc_html_e( 'Shadow Strength', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_sh_strength" name="kdna_bg_rib_sh_strength" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sh_s ); ?>" />
@@ -590,7 +592,7 @@ class KDNA_BG_Meta {
 
         /* Glass refraction */
         $glass_type = isset( $_POST['kdna_bg_glass_type'] ) ? sanitize_text_field( wp_unslash( $_POST['kdna_bg_glass_type'] ) ) : 'none';
-        if ( ! in_array( $glass_type, array( 'none', 'liquid', 'fluted', 'diamond' ), true ) ) {
+        if ( ! in_array( $glass_type, array( 'none', 'liquid', 'fluted', 'diamond', 'hexagon', 'organic' ), true ) ) {
             $glass_type = 'none';
         }
         update_post_meta( $post_id, '_kdna_bg_glass_type', $glass_type );
