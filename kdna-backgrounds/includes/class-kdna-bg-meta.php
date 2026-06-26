@@ -390,6 +390,7 @@ class KDNA_BG_Meta {
         $diamond_a  = get_post_meta( $post->ID, '_kdna_bg_diamond_angle', true );
         $light_move = get_post_meta( $post->ID, '_kdna_bg_light_move', true );
         $rib_sharp  = get_post_meta( $post->ID, '_kdna_bg_rib_sharp', true );
+        $bevel_w    = get_post_meta( $post->ID, '_kdna_bg_bevel_width', true );
         $rib_hi_w   = get_post_meta( $post->ID, '_kdna_bg_rib_hi_width', true );
         $rib_hi_s   = get_post_meta( $post->ID, '_kdna_bg_rib_hi_strength', true );
         $rib_sh_w   = get_post_meta( $post->ID, '_kdna_bg_rib_sh_width', true );
@@ -404,6 +405,7 @@ class KDNA_BG_Meta {
         $diamond_a  = '' !== $diamond_a ? floatval( $diamond_a ) : 45;
         $light_move = '' !== $light_move ? floatval( $light_move ) : 30;
         $rib_sharp  = '' !== $rib_sharp ? floatval( $rib_sharp ) : 0;
+        $bevel_w    = '' !== $bevel_w ? floatval( $bevel_w ) : 50;
         $rib_hi_w   = '' !== $rib_hi_w ? floatval( $rib_hi_w ) : 25;
         $rib_hi_s   = '' !== $rib_hi_s ? floatval( $rib_hi_s ) : 40;
         $rib_sh_w   = '' !== $rib_sh_w ? floatval( $rib_sh_w ) : 50;
@@ -489,12 +491,20 @@ class KDNA_BG_Meta {
                     <p class="description"><?php esc_html_e( 'Animates the light source so the highlights sweep across the diamonds as if a light is moving over the surface. 0 = a fixed light; higher = faster movement. (Diamond style only.)', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
-            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond hexagon organic">
+            <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
                 <th><label for="kdna_bg_rib_sharp"><?php esc_html_e( 'Rib Sharpness', 'kdna-backgrounds' ); ?></label></th>
                 <td>
                     <input type="range" id="kdna_bg_rib_sharp" name="kdna_bg_rib_sharp" min="0" max="100" step="1" value="<?php echo esc_attr( $rib_sharp ); ?>" />
                     <span class="kdna-bg-range-value" id="kdna-bg-rib-sharp-val"><?php echo esc_html( $rib_sharp ); ?></span>
                     <p class="description"><?php esc_html_e( 'How the flute is shaped. 0 = soft, rounded flutes; higher flattens them toward flat facets with a near-linear lens ramp. (The brightness of the ribs is set by the Highlight and Shadow sliders below.)', 'kdna-backgrounds' ); ?></p>
+                </td>
+            </tr>
+            <tr class="kdna-bg-glass-row" data-glass-group="hexagon organic">
+                <th><label for="kdna_bg_bevel_width"><?php esc_html_e( 'Bevel Width', 'kdna-backgrounds' ); ?></label></th>
+                <td>
+                    <input type="range" id="kdna_bg_bevel_width" name="kdna_bg_bevel_width" min="0" max="100" step="1" value="<?php echo esc_attr( $bevel_w ); ?>" />
+                    <span class="kdna-bg-range-value" id="kdna-bg-bevel-width-val"><?php echo esc_html( $bevel_w ); ?></span>
+                    <p class="description"><?php esc_html_e( 'How wide the sloped bevel ring is, from each cell edge in toward its centre. Low = a thin bevel around a large flat top (flat honeycomb with a bright rim); high = a wide bevel that fills the cell into a full rounded dome. Pair with Refraction Strength (how much it raises) and Highlight Strength (rim brightness) to dial in the look.', 'kdna-backgrounds' ); ?></p>
                 </td>
             </tr>
             <tr class="kdna-bg-glass-row" data-glass-group="fluted diamond">
@@ -620,6 +630,9 @@ class KDNA_BG_Meta {
 
         $rib_sharp = isset( $_POST['kdna_bg_rib_sharp'] ) ? floatval( $_POST['kdna_bg_rib_sharp'] ) : 0;
         update_post_meta( $post_id, '_kdna_bg_rib_sharp', max( 0, min( 100, $rib_sharp ) ) );
+
+        $bevel_width = isset( $_POST['kdna_bg_bevel_width'] ) ? floatval( $_POST['kdna_bg_bevel_width'] ) : 50;
+        update_post_meta( $post_id, '_kdna_bg_bevel_width', max( 0, min( 100, $bevel_width ) ) );
 
         update_post_meta( $post_id, '_kdna_bg_rib_hi_width', isset( $_POST['kdna_bg_rib_hi_width'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_rib_hi_width'] ) ) ) : 25 );
         update_post_meta( $post_id, '_kdna_bg_rib_hi_strength', isset( $_POST['kdna_bg_rib_hi_strength'] ) ? max( 0, min( 100, floatval( $_POST['kdna_bg_rib_hi_strength'] ) ) ) : 40 );
