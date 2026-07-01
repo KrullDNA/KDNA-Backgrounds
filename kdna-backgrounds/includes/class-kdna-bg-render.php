@@ -70,9 +70,13 @@ class KDNA_BG_Render {
             $colours = array( '#0a2463', '#1e6bff', '#3d8bff' );
         }
 
+        $colour_weights = get_post_meta( $post_id, '_kdna_bg_colour_weights', true );
+        $colour_weights = is_array( $colour_weights ) ? array_map( 'floatval', $colour_weights ) : array();
+
         return array(
             'id'              => intval( $post_id ),
             'colours'         => $colours,
+            'colourWeights'   => $colour_weights,
             'speed'           => '' !== $speed ? floatval( $speed ) : 5,
             'amplitude'       => '' !== $amplitude ? intval( $amplitude ) : 100,
             'density'         => '' !== $density ? floatval( $density ) : 6,

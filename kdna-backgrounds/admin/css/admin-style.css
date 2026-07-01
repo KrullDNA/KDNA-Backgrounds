@@ -66,6 +66,23 @@
     flex: 1;
 }
 
+.kdna-bg-colour-weight-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.kdna-bg-colour-weight {
+    width: 58px !important;
+    text-align: right;
+}
+
+.kdna-bg-colour-weight-pct {
+    color: #646970;
+    font-weight: 600;
+}
+
 .kdna-bg-remove-colour {
     color: #b32d2e !important;
     border-color: #b32d2e !important;

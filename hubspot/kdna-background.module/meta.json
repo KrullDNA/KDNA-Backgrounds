@@ -1,0 +1,11 @@
+{
+  "label": "KDNA Animated Background",
+  "help_text": "Animated WebGL background with the Wash gradient and optional Fluted glass effect. Place it at the top of a section, give the section a height, and put your content in a normal module/row above it.",
+  "host_template_types": ["PAGE", "BLOG_POST", "BLOG_LISTING"],
+  "is_available_for_new_content": true,
+  "smart_type": "NOT_SMART",
+  "global": false,
+  "css_assets": [],
+  "js_assets": [],
+  "other_assets": []
+}

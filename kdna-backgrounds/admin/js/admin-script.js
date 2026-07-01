@@ -18,14 +18,19 @@
 
     function buildConfigFromDOM() {
         var colours = [];
-        $('#kdna-bg-colour-list .kdna-bg-colour-picker').each(function () {
-            var val = $(this).val();
-            if (val) colours.push(val);
+        var colourWeights = [];
+        $('#kdna-bg-colour-list .kdna-bg-colour-row').each(function () {
+            var val = $(this).find('.kdna-bg-colour-picker').val();
+            if (val) {
+                colours.push(val);
+                colourWeights.push(parseFloat($(this).find('.kdna-bg-colour-weight').val()) || 0);
+            }
         });
-        if (colours.length < 2) colours = ['#0a2463', '#1e6bff', '#3d8bff'];
+        if (colours.length < 2) { colours = ['#0a2463', '#1e6bff', '#3d8bff']; colourWeights = []; }
 
         return {
             colours:         colours,
+            colourWeights:   colourWeights,
             speed:           parseFloat($('#kdna_bg_speed').val()) || 5,
             amplitude:       parseInt($('#kdna_bg_amplitude').val(), 10) || 320,
             density:         parseFloat($('#kdna_bg_density').val()) || 6,
@@ -198,6 +203,10 @@
                     '<span class="kdna-bg-drag-handle dashicons dashicons-menu"></span>' +
                     '<span class="kdna-bg-colour-number">' + (count + 1) + '</span>' +
                     '<input type="text" class="kdna-bg-colour-picker" name="kdna_bg_colours[]" value="#333333" />' +
+                    '<span class="kdna-bg-colour-weight-wrap">' +
+                        '<input type="number" class="kdna-bg-colour-weight" name="kdna_bg_colour_weights[]" min="0" max="100" step="1" value="20" title="Share of the overall colour mix (not opacity)" />' +
+                        '<span class="kdna-bg-colour-weight-pct">%</span>' +
+                    '</span>' +
                     '<button type="button" class="button kdna-bg-remove-colour" title="Remove">&times;</button>' +
                 '</li>'
             );
@@ -216,6 +225,11 @@
             }
             $(this).closest('.kdna-bg-colour-row').remove();
             updateNumbering();
+            refreshPreview();
+        });
+
+        /* Colour proportion (%) inputs: live-refresh the preview. */
+        $list.on('input', '.kdna-bg-colour-weight', function () {
             refreshPreview();
         });
 

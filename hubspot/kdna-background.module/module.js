@@ -1,3 +1,10 @@
+/*
+ * KDNA Animated Background — HubSpot module script
+ * Part 1: the WebGL gradient engine (identical to the WordPress plugin engine).
+ * Part 2 (bottom of file): a HubSpot bootstrap that starts every module on the page.
+ * Do not edit by hand — regenerate from the plugin engine + the bootstrap.
+ */
+
 /**
  * KDNA Gradient Engine v2.1.34
  * WebGL mesh gradient with optional glass refraction second pass,
@@ -828,3 +835,80 @@
     };
 
 })(window);
+
+
+/* ============================================================
+ * HubSpot bootstrap for the KDNA Animated Background module.
+ * Finds every .kdna-bg-module on the page, reads its JSON config
+ * block and starts the gradient engine (defined above) on its
+ * canvas. Each module initialises once; safe to run repeatedly.
+ * ============================================================ */
+(function () {
+    'use strict';
+
+    function startModule(mod) {
+        if (mod.getAttribute('data-kdna-init') === '1') return;
+        if (!window.KDNAGradientEngine) return;
+
+        var wrap = mod.querySelector('.kdna-bg-wrapper');
+        var canvas = mod.querySelector('.kdna-bg-canvas');
+        var cfgEl = mod.querySelector('.kdna-bg-config');
+        if (!wrap || !canvas || !cfgEl) return;
+
+        /* Wait until the section actually has a size on screen. */
+        var rect = wrap.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) return;
+
+        var cfg;
+        try { cfg = JSON.parse(cfgEl.textContent); } catch (e) { return; }
+        if (!cfg.colours || cfg.colours.length < 2) return;
+
+        mod.setAttribute('data-kdna-init', '1');
+        try {
+            var g = window.KDNAGradientEngine.create(cfg);
+            g.init(canvas);
+            mod._kdnaGradient = g;
+
+            if ('IntersectionObserver' in window) {
+                new IntersectionObserver(function (entries) {
+                    if (entries[0].isIntersecting) { g.play(); } else { g.pause(); }
+                }, { threshold: 0.05 }).observe(mod);
+            }
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                g.pause();
+            }
+        } catch (e) {
+            mod.removeAttribute('data-kdna-init');
+        }
+    }
+
+    function scan() {
+        var mods = document.querySelectorAll('.kdna-bg-module');
+        for (var i = 0; i < mods.length; i++) startModule(mods[i]);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', scan);
+    } else {
+        scan();
+    }
+    window.addEventListener('load', function () { setTimeout(scan, 100); });
+
+    /* Retry for a few seconds to catch sections that gain height late
+       (tabs, accordions, lazy/animated layout). Stops once all are done. */
+    var tries = 0;
+    var timer = setInterval(function () {
+        scan();
+        if (++tries > 25 || !document.querySelector('.kdna-bg-module:not([data-kdna-init="1"])')) {
+            clearInterval(timer);
+        }
+    }, 300);
+
+    /* Re-scan when modules are injected/re-rendered (page editor preview). */
+    if ('MutationObserver' in window && document.body) {
+        var deb;
+        new MutationObserver(function () {
+            clearTimeout(deb); deb = setTimeout(scan, 300);
+        }).observe(document.body, { childList: true, subtree: true });
+    }
+})();
