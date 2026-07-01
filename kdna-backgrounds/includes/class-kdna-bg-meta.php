@@ -70,14 +70,26 @@ class KDNA_BG_Meta {
         if ( empty( $colours ) || ! is_array( $colours ) ) {
             $colours = array( '#0a2463', '#1e6bff', '#3d8bff' );
         }
+
+        $weights = get_post_meta( $post->ID, '_kdna_bg_colour_weights', true );
+        if ( ! is_array( $weights ) ) {
+            $weights = array();
+        }
+        $count       = count( $colours );
+        $equal_share = $count > 0 ? round( 100 / $count ) : 0;
         ?>
         <div id="kdna-bg-colours-wrapper">
             <ul id="kdna-bg-colour-list">
                 <?php foreach ( $colours as $i => $hex ) : ?>
+                    <?php $w = isset( $weights[ $i ] ) && '' !== $weights[ $i ] ? $weights[ $i ] : $equal_share; ?>
                     <li class="kdna-bg-colour-row" data-index="<?php echo esc_attr( $i ); ?>">
                         <span class="kdna-bg-drag-handle dashicons dashicons-menu"></span>
                         <span class="kdna-bg-colour-number"><?php echo esc_html( $i + 1 ); ?></span>
                         <input type="text" class="kdna-bg-colour-picker" name="kdna_bg_colours[]" value="<?php echo esc_attr( $hex ); ?>" />
+                        <span class="kdna-bg-colour-weight-wrap">
+                            <input type="number" class="kdna-bg-colour-weight" name="kdna_bg_colour_weights[]" min="0" max="100" step="1" value="<?php echo esc_attr( $w ); ?>" title="<?php esc_attr_e( 'Share of the overall colour mix (not opacity)', 'kdna-backgrounds' ); ?>" />
+                            <span class="kdna-bg-colour-weight-pct">%</span>
+                        </span>
                         <button type="button" class="button kdna-bg-remove-colour" title="<?php esc_attr_e( 'Remove', 'kdna-backgrounds' ); ?>">&times;</button>
                     </li>
                 <?php endforeach; ?>
@@ -89,6 +101,9 @@ class KDNA_BG_Meta {
                 <span class="kdna-bg-colour-count">
                     <?php printf( esc_html__( '%d / 10 colours', 'kdna-backgrounds' ), count( $colours ) ); ?>
                 </span>
+            </p>
+            <p class="description">
+                <?php esc_html_e( 'The % sets how much of the overall colour mix each colour takes up in the Wash style (not its opacity). A higher % means that colour fills more of the background. The values are balanced automatically, so they need not add up to exactly 100.', 'kdna-backgrounds' ); ?>
             </p>
         </div>
         <?php
@@ -566,20 +581,30 @@ class KDNA_BG_Meta {
             return;
         }
 
-        /* Colours */
+        /* Colours + their proportion weights (kept index-aligned: a weight is
+           only stored for a colour that passes hex sanitising). */
         $colours = array();
+        $colour_weights = array();
         if ( isset( $_POST['kdna_bg_colours'] ) && is_array( $_POST['kdna_bg_colours'] ) ) {
-            foreach ( array_slice( $_POST['kdna_bg_colours'], 0, 10 ) as $hex ) {
+            $posted_colours = array_slice( $_POST['kdna_bg_colours'], 0, 10 );
+            $posted_weights = ( isset( $_POST['kdna_bg_colour_weights'] ) && is_array( $_POST['kdna_bg_colour_weights'] ) )
+                ? array_slice( $_POST['kdna_bg_colour_weights'], 0, 10 )
+                : array();
+            foreach ( $posted_colours as $idx => $hex ) {
                 $sanitised = sanitize_hex_color( $hex );
                 if ( $sanitised ) {
-                    $colours[] = $sanitised;
+                    $colours[]        = $sanitised;
+                    $w                = isset( $posted_weights[ $idx ] ) ? floatval( $posted_weights[ $idx ] ) : 0;
+                    $colour_weights[] = max( 0, min( 100, $w ) );
                 }
             }
         }
         if ( empty( $colours ) ) {
-            $colours = array( '#0a2463', '#1e6bff', '#3d8bff' );
+            $colours        = array( '#0a2463', '#1e6bff', '#3d8bff' );
+            $colour_weights = array();
         }
         update_post_meta( $post_id, '_kdna_bg_colours', $colours );
+        update_post_meta( $post_id, '_kdna_bg_colour_weights', $colour_weights );
 
         /* Speed */
         $speed = isset( $_POST['kdna_bg_speed'] ) ? floatval( $_POST['kdna_bg_speed'] ) : 5;
