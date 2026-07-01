@@ -546,16 +546,45 @@
         /* Resize handler (ResizeObserver catches CSS/Elementor breakpoint
            changes, window resize catches browser chrome and DPR changes) */
         self._lastW = w; self._lastH = h;
-        self._onResize = function () {
-            var nw = parent.offsetWidth || 300;
-            var nh = parent.offsetHeight || 200;
-            if (nw === self._lastW && nh === self._lastH) return;
+        self._onResize = function () { self._syncSize(false); };
+        if ('ResizeObserver' in window) {
+            self._resizeObs = new ResizeObserver(self._onResize);
+            self._resizeObs.observe(parent);
+        }
+        window.addEventListener('resize', self._onResize);
+
+        self.play();
+
+        /* Self-heal against the layout race: the container often gets its final
+           height AFTER our first render (web fonts, images, flex, Elementor,
+           lazy sections), which left the canvas blank until the user nudged the
+           window. Re-measure and repaint on the next frame and a few times over
+           the first second so it appears on its own. force=true re-runs the
+           full size/camera/geometry setup (what a manual resize did) even when
+           the measured size is unchanged, clearing any stale first-frame state. */
+        var kick = function () { self._syncSize(true); };
+        if (typeof requestAnimationFrame === 'function') requestAnimationFrame(kick);
+        self._kickTimers = [setTimeout(kick, 150), setTimeout(kick, 500), setTimeout(kick, 1200)];
+    };
+
+    /**
+     * Re-measure the container and, if the size changed (or force is true),
+     * re-apply the canvas size, camera, mesh topology and refraction target,
+     * then repaint. Repainting unconditionally means a size we missed at init
+     * becomes visible without waiting for a window resize.
+     */
+    KDNAGradient.prototype._syncSize = function (force) {
+        var self = this;
+        if (!self.minigl || !self.canvas || !self.canvas.parentElement) return;
+        var parent = self.canvas.parentElement;
+        var nw = parent.offsetWidth || 300;
+        var nh = parent.offsetHeight || 200;
+        if (force || nw !== self._lastW || nh !== self._lastH) {
             self._lastW = nw; self._lastH = nh;
             var nd = self._glassAA ? Math.min(Math.max(window.devicePixelRatio || 1, 2) * 1.5, 3)
                                    : Math.min(window.devicePixelRatio || 1, 2);
-            var ncap = self._capDims(nw * nd, nh * nd);
-            var npw = ncap[0];
-            var nph = ncap[1];
+            var cap = self._capDims(nw * nd, nh * nd);
+            var npw = cap[0], nph = cap[1];
             self.minigl.setSize(npw, nph);
             self.minigl.setOrthographicCamera();
             var nx = Math.min(400, Math.max(12, Math.ceil(npw * self.densityMul)));
@@ -564,14 +593,9 @@
             self.mesh.geometry.setSize(npw, nph);
             self.uniforms.u_shadow_power.value = nw < 600 ? 5 : 6;
             if (self.refractActive) self._resizeRefraction(npw, nph);
-        };
-        if ('ResizeObserver' in window) {
-            self._resizeObs = new ResizeObserver(self._onResize);
-            self._resizeObs.observe(parent);
         }
-        window.addEventListener('resize', self._onResize);
-
-        self.play();
+        self.uniforms.u_time.value = self.t;
+        self.renderFrame();
     };
 
     KDNAGradient.prototype.animate = function (ts) {
@@ -612,6 +636,7 @@
 
     KDNAGradient.prototype.destroy = function () {
         this.pause();
+        if (this._kickTimers) { for (var k = 0; k < this._kickTimers.length; k++) clearTimeout(this._kickTimers[k]); this._kickTimers = null; }
         if (this._resizeObs) this._resizeObs.disconnect();
         if (this._onResize) window.removeEventListener('resize', this._onResize);
         if (this.refractActive && this.minigl) {
