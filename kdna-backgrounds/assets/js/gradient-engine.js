@@ -310,15 +310,28 @@
 
         self.minigl = new MiniGl(canvas, pw, ph);
 
-        /* Cap canvas to GPU viewport limits so tall/wide containers
-           don't exceed the renderbuffer and render only partially.
-           CSS width/height:100% stretches the capped canvas to fill. */
-        var maxDims = self.minigl.gl.getParameter(self.minigl.gl.MAX_VIEWPORT_DIMS);
-        self._maxDims = maxDims || [8192, 8192];
-        if (pw > self._maxDims[0] || ph > self._maxDims[1]) {
-            pw = Math.min(pw, self._maxDims[0]);
-            ph = Math.min(ph, self._maxDims[1]);
-            self.minigl.setSize(pw, ph);
+        /* Cap the internal resolution to what the GPU can actually allocate.
+           This must respect BOTH the viewport limit AND MAX_TEXTURE_SIZE: the
+           glass refraction pass renders into an FBO texture, and the
+           supersampling boost above can push the size past MAX_TEXTURE_SIZE on
+           some GPUs (commonly 4096). When texImage2D exceeds that limit the
+           texture is left at 0x0 and the framebuffer becomes "incomplete:
+           attachment has zero size" - a white canvas plus GL error spam that
+           only clears on a resize. Capping to the texture limit prevents it.
+           The cap scales both axes by the same factor so the aspect ratio (and
+           therefore u_aspect) stays correct; CSS width/height:100% stretches
+           the capped canvas back to fill the container. */
+        var glc = self.minigl.gl;
+        var vpDims = glc.getParameter(glc.MAX_VIEWPORT_DIMS);
+        var maxTex = glc.getParameter(glc.MAX_TEXTURE_SIZE) || 4096;
+        var vpW = ( vpDims && vpDims[0] > 0 ) ? vpDims[0] : 8192;
+        var vpH = ( vpDims && vpDims[1] > 0 ) ? vpDims[1] : 8192;
+        self._maxDims = [ Math.min( vpW, maxTex ), Math.min( vpH, maxTex ) ];
+        var capped = self._capDims( pw, ph );
+        if ( capped[0] !== pw || capped[1] !== ph ) {
+            pw = capped[0];
+            ph = capped[1];
+            self.minigl.setSize( pw, ph );
         }
 
         canvas.style.width = '100%';
@@ -533,8 +546,9 @@
             self._lastW = nw; self._lastH = nh;
             var nd = self._glassAA ? Math.min(Math.max(window.devicePixelRatio || 1, 2) * 1.5, 3)
                                    : Math.min(window.devicePixelRatio || 1, 2);
-            var npw = Math.min(Math.round(nw * nd), self._maxDims[0]);
-            var nph = Math.min(Math.round(nh * nd), self._maxDims[1]);
+            var ncap = self._capDims(nw * nd, nh * nd);
+            var npw = ncap[0];
+            var nph = ncap[1];
             self.minigl.setSize(npw, nph);
             self.minigl.setOrthographicCamera();
             var nx = Math.min(400, Math.max(12, Math.ceil(npw * self.densityMul)));
@@ -573,6 +587,22 @@
         this.playing = false;
         if (this.raf) { cancelAnimationFrame(this.raf); this.raf = null; }
     };
+    /**
+     * Scale (pw, ph) down uniformly so neither axis exceeds the GPU limits in
+     * self._maxDims, preserving aspect ratio. Never returns below 1x1.
+     */
+    KDNAGradient.prototype._capDims = function (pw, ph) {
+        var m = this._maxDims || [8192, 8192];
+        pw = Math.max(1, Math.round(pw) || 1);
+        ph = Math.max(1, Math.round(ph) || 1);
+        var s = Math.min(1, m[0] / pw, m[1] / ph);
+        if (s < 1) {
+            pw = Math.max(1, Math.floor(pw * s));
+            ph = Math.max(1, Math.floor(ph * s));
+        }
+        return [pw, ph];
+    };
+
     KDNAGradient.prototype.destroy = function () {
         this.pause();
         if (this._resizeObs) this._resizeObs.disconnect();
@@ -683,6 +713,10 @@
      */
     KDNAGradient.prototype._resizeRefraction = function (pw, ph) {
         var self = this, gl = self.minigl.gl;
+        /* Never allocate a 0-size (or over-limit) FBO texture: that makes the
+           framebuffer incomplete and every draw fails. */
+        var cap = self._capDims(pw, ph);
+        pw = cap[0]; ph = cap[1];
         self._postW = pw; self._postH = ph;
         gl.bindTexture(gl.TEXTURE_2D, self._fboTex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, pw, ph, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -702,7 +736,10 @@
      */
     KDNAGradient.prototype.renderFrame = function () {
         var self = this;
-        if (!self.refractActive) { self.minigl.render(); return; }
+        /* Fall back to a plain direct render if the refraction target isn't a
+           valid size yet (container had no height at init, etc.) so we never
+           draw into a zero-size framebuffer. */
+        if (!self.refractActive || !(self._postW > 0) || !(self._postH > 0)) { self.minigl.render(); return; }
         var gl = self.minigl.gl;
         gl.bindFramebuffer(gl.FRAMEBUFFER, self._fbo);
         gl.viewport(0, 0, self._postW, self._postH);
