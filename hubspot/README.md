@@ -1,8 +1,9 @@
 # KDNA Animated Background — HubSpot module
 
 A HubSpot CMS custom module that runs the KDNA **Wash** gradient with an
-optional **Fluted glass** effect. It is the same WebGL engine used by the
-WordPress plugin, repackaged for HubSpot CMS.
+optional **Fluted glass** effect. It is built on the KDNA Backgrounds **v2.1.16**
+engine (Wash + Fluted only — no other styles or later tweaks), repackaged for
+HubSpot CMS.
 
 > **What "for HubSpot" means here.** HubSpot websites are built on **CMS Hub**,
 > whose page building blocks are *custom modules*. Custom modules are the
@@ -61,9 +62,8 @@ hs watch hubspot/kdna-background.module "kdna-background.module"
 The module mirrors the WordPress plugin's layout, trimmed to just the two
 effects this job needs:
 
-1. **Gradient Colours** — 2–10 colours (drag to reorder). Each has a **% of
-   mix** that sets how much of the background that colour fills (not opacity);
-   values are balanced automatically, so they need not total 100.
+1. **Gradient Colours** — 2–10 colours (drag to reorder). Colour 1 is the
+   dominant background.
 2. **Animation Settings** — Speed, Wave Amplitude, Mesh Density, Randomness
    Seed, Darken Top Edge.
 3. **Colour Shapes (Wash)** — Flow Amount, Flow Angle, Shape Definition, Colour
@@ -81,14 +81,11 @@ the Fluted effect on.
 
 ## Notes
 
-- The control ranges/defaults match the WordPress plugin exactly, so a setting
-  behaves identically in both.
 - The effect needs WebGL; the engine falls back to a static CSS gradient where
   WebGL isn't available. It pauses when scrolled off‑screen and respects
   `prefers-reduced-motion`.
-- Only **Wash** + **Fluted** are exposed. The engine still contains the other
-  styles (concentric, bands, liquid, diamond, hexagon, organic); they're simply
-  not surfaced as fields here.
-- `module.js` is the plugin's `assets/js/gradient-engine.js` concatenated with a
-  small bootstrap. To update the effect, regenerate it from the engine rather
-  than editing by hand.
+- Only **Wash** + **Fluted** are exposed. The v2.1.16 engine also contains
+  Concentric, Bands and Liquid; they're simply not surfaced as fields here.
+- `module.js` is the KDNA Backgrounds **v2.1.16** `gradient-engine.js`
+  concatenated with a small bootstrap. It deliberately does not include the
+  later plugin work (colour %, supersampling AA, per‑fragment wash, etc.).

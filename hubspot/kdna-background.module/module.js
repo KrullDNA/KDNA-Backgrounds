@@ -1,12 +1,11 @@
 /*
  * KDNA Animated Background — HubSpot module script
- * Part 1: the WebGL gradient engine (identical to the WordPress plugin engine).
+ * Part 1: the WebGL gradient engine from KDNA Backgrounds v2.1.16 (Wash + Fluted).
  * Part 2 (bottom of file): a HubSpot bootstrap that starts every module on the page.
- * Do not edit by hand — regenerate from the plugin engine + the bootstrap.
  */
 
 /**
- * KDNA Gradient Engine v2.1.34
+ * KDNA Gradient Engine v2.1.16
  * WebGL mesh gradient with optional glass refraction second pass,
  * and a Canvas 2D fallback.
  */
@@ -263,9 +262,9 @@
 
     var shaderBlend = 'vec3 blendNormal(vec3 base,vec3 blend){return blend;}\nvec3 blendNormal(vec3 base,vec3 blend,float opacity){return(blendNormal(base,blend)*opacity+base*(1.0-opacity));}';
 
-    var shaderVertex = 'varying vec3 v_color;\nvarying vec2 v_uvNorm;\nvoid main(){\nfloat time=u_time*u_global.noiseSpeed;\nvec2 noiseCoord=resolution*uvNorm*u_global.noiseFreq;\nfloat tilt=resolution.y*0.6*uvNorm.y;\nfloat incline=resolution.x*uvNorm.x/2.0*u_vertDeform.incline;\nfloat offset=resolution.x/2.0*u_vertDeform.incline*mix(u_vertDeform.offsetBottom,u_vertDeform.offsetTop,uv.y);\nfloat noise=snoise(vec3(noiseCoord.x*u_vertDeform.noiseFreq.x+time*u_vertDeform.noiseFlow,noiseCoord.y*u_vertDeform.noiseFreq.y,time*u_vertDeform.noiseSpeed+u_vertDeform.noiseSeed))*u_vertDeform.noiseAmp;\nnoise*=1.0-pow(abs(uvNorm.y),2.0);\nvec3 pos=vec3(position.x,position.y+tilt+incline+noise-offset,position.z);\nv_color=u_baseColor;\nv_uvNorm=uvNorm;\nif(u_shapeStyle<0.5){\n/* WASH: even all-over blobs. Domain warp (Flow Amount) bends the colour\n   sample coords into flowing, marbled forms. Skipped when flow is 0. */\nvec2 cCoord=noiseCoord;\nif(u_flowAmount>0.0){\nvec2 wc=noiseCoord*2.0;\nfloat wt=time*u_vertDeform.noiseFlow*0.5;\nfloat wx=snoise(vec3(wc.x+13.0,wc.y+7.0,wt));\nfloat wy=snoise(vec3(wc.x+71.0,wc.y+23.0,wt+5.0));\nfloat ca=cos(u_flowAngle);\nfloat sa=sin(u_flowAngle);\ncCoord+=vec2(wx*ca-wy*sa,wx*sa+wy*ca)*u_flowAmount*0.5;\n}\nfor(int i=0;i<u_waveLayers_length;i++){\nWaveLayers layer=u_waveLayers[i];\nfloat center=layer.wCenter-u_spread+u_dominantBg*0.28;\nfloat halfGap=max(layer.wHalf*u_definition,0.001);\nfloat cn=snoise(vec3(cCoord.x*layer.noiseFreq.x+time*layer.noiseFlow,cCoord.y*layer.noiseFreq.y,time*layer.noiseSpeed+layer.noiseSeed))/2.0+0.5;\nfloat n=smoothstep(center-halfGap,center+halfGap,cn);\nv_color=blendNormal(v_color,layer.color,pow(n,1.5));\n}\n}else if(u_shapeStyle<1.5){\n/* CONCENTRIC (dynamic): one or more ring-shapes drifting slowly across the\n   canvas. Within each shape the colours 2..N form a smooth radial gradient\n   that scrolls outward and loops (a colour grows from the centre to the\n   edge while the next emerges from the centre). Colour Blend sets how soft\n   the colour transitions are, Colour Repeats sets how many times the colour\n   set repeats within a shape, Shape Count sets how many separate shapes\n   appear, Radiate Speed sets the outward speed, Movement drifts the shapes\n   off and back onto the canvas, Shape Stretch elongates and breathes them,\n   Colour Spread sets size, Shape Definition sets the outer fade. */\nfloat rtime=u_time*0.000015*u_radiateSpeed;\nfloat bt=u_time*0.0003;\nfloat mt=u_time*0.0001;\nfloat nLayers=float(u_waveLayers_length);\nfloat halfTrans=mix(0.06,0.5,u_colorBlend);\nfloat ext0=max((0.7+u_spread*1.4)*(1.0-u_dominantBg*0.3),0.05);\nfloat soft=clamp(u_definition*0.6,0.05,0.95);\nvec3 acc=vec3(0.0);\nfloat wsum=0.0;\nfloat ampMax=0.0;\nfor(int s=0;s<4;s++){\nif(float(s)>=u_shapeCount)break;\nfloat fs=float(s);\nfloat r1=fract(sin(fs*43.13+1.7)*1231.43);\nfloat r2=fract(sin(fs*91.71+3.1)*9876.54);\nfloat r3=fract(sin(fs*12.37+5.9)*5432.19);\nfloat r4=fract(sin(fs*27.71+9.3)*3141.59);\nfloat sizeF=(u_shapeCount<1.5)?1.0:clamp(1.1/u_shapeCount,0.4,0.75);\nfloat ha=(fs+0.5)/u_shapeCount*6.2831+(r1-0.5)*0.9;\nfloat hr=(u_shapeCount<1.5)?0.0:mix(0.72,1.05,r2);\nvec2 home=vec2(cos(ha),sin(ha))*hr;\nvec2 drift=vec2(sin(mt*(0.7+0.5*r1)+fs*2.1),cos(mt*(0.55+0.5*r2)+fs*1.3))*u_drift;\nvec2 q=uvNorm-home-drift;\nfloat ang=u_flowAngle+((fs<0.5)?0.0:(r3-0.5)*6.2831);\nfloat ca=cos(ang);\nfloat sa=sin(ang);\nvec2 rq=vec2(q.x*ca+q.y*sa,-q.x*sa+q.y*ca);\nfloat stretchAmt=u_stretch*(0.55+0.45*sin(bt+fs));\nrq.x/=(1.0+stretchAmt*3.0);\nif(u_flowAmount>0.0){\nvec2 wc=q*1.2;\nfloat ft=time*u_vertDeform.noiseFlow*0.5;\nfloat wx=snoise(vec3(wc.x+13.0,wc.y+7.0,ft+fs));\nfloat wy=snoise(vec3(wc.x+71.0,wc.y+23.0,ft+5.0+fs));\nrq+=vec2(wx,wy)*u_flowAmount*0.6;\n}\nfloat extent=ext0*sizeF*mix(0.85,1.15,r4)*(1.0+0.12*sin(bt*0.85+fs));\nfloat rNorm=length(rq)/extent;\nfloat cyc=fract(rNorm*u_ringCount-rtime*(0.8+0.4*r1)+r2);\nfloat scaled=cyc*nLayers;\nfloat idx=floor(scaled);\nfloat idxB=mod(idx+1.0,nLayers);\nfloat tt=fract(scaled);\ntt=smoothstep(0.5-halfTrans,0.5+halfTrans,tt);\nvec3 colA=u_waveLayers[0].color;\nvec3 colB=u_waveLayers[0].color;\nfor(int i=0;i<u_waveLayers_length;i++){\nfloat fi=float(i);\nif(abs(fi-idx)<0.5)colA=u_waveLayers[i].color;\nif(abs(fi-idxB)<0.5)colB=u_waveLayers[i].color;\n}\nvec3 ring=mix(colA,colB,tt);\nfloat amp=1.0-smoothstep(1.0-soft,1.0+soft,rNorm);\nacc+=ring*amp;\nwsum+=amp;\nampMax=max(ampMax,amp);\n}\nvec3 blended=(wsum>0.0001)?(acc/wsum):u_baseColor;\nv_color=mix(u_baseColor,blended,ampMax);\n}else{\nv_color=u_bandBgColor;\n}\n/* Satin sheen: a slow, flowing brightness variation that catches the\n   light along the colours (has least effect where colour 1 is dark). */\nif(u_sheen>0.0){\nfloat lite=snoise(vec3(uvNorm.x*2.5+time*0.05,uvNorm.y*2.5,time*0.1+11.0));\nv_color*=clamp(1.0+lite*u_sheen,0.0,2.5);\n}\ngl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);\n}';
+    var shaderVertex = 'varying vec3 v_color;\nvoid main(){\nfloat time=u_time*u_global.noiseSpeed;\nvec2 noiseCoord=resolution*uvNorm*u_global.noiseFreq;\nfloat tilt=resolution.y*0.6*uvNorm.y;\nfloat incline=resolution.x*uvNorm.x/2.0*u_vertDeform.incline;\nfloat offset=resolution.x/2.0*u_vertDeform.incline*mix(u_vertDeform.offsetBottom,u_vertDeform.offsetTop,uv.y);\nfloat noise=snoise(vec3(noiseCoord.x*u_vertDeform.noiseFreq.x+time*u_vertDeform.noiseFlow,noiseCoord.y*u_vertDeform.noiseFreq.y,time*u_vertDeform.noiseSpeed+u_vertDeform.noiseSeed))*u_vertDeform.noiseAmp;\nnoise*=1.0-pow(abs(uvNorm.y),2.0);\nvec3 pos=vec3(position.x,position.y+tilt+incline+noise-offset,position.z);\nv_color=u_baseColor;\nif(u_shapeStyle<0.5){\n/* WASH: even all-over blobs. Domain warp (Flow Amount) bends the colour\n   sample coords into flowing, marbled forms. Skipped when flow is 0. */\nvec2 cCoord=noiseCoord;\nif(u_flowAmount>0.0){\nvec2 wc=noiseCoord*2.0;\nfloat wt=time*u_vertDeform.noiseFlow*0.5;\nfloat wx=snoise(vec3(wc.x+13.0,wc.y+7.0,wt));\nfloat wy=snoise(vec3(wc.x+71.0,wc.y+23.0,wt+5.0));\nfloat ca=cos(u_flowAngle);\nfloat sa=sin(u_flowAngle);\ncCoord+=vec2(wx*ca-wy*sa,wx*sa+wy*ca)*u_flowAmount*0.5;\n}\nfor(int i=0;i<u_waveLayers_length;i++){\nWaveLayers layer=u_waveLayers[i];\nfloat center=(layer.noiseFloor+layer.noiseCeil)*0.5-u_spread+u_dominantBg*0.28;\nfloat halfGap=max((layer.noiseCeil-layer.noiseFloor)*0.5*u_definition,0.001);\nfloat cn=snoise(vec3(cCoord.x*layer.noiseFreq.x+time*layer.noiseFlow,cCoord.y*layer.noiseFreq.y,time*layer.noiseSpeed+layer.noiseSeed))/2.0+0.5;\nfloat n=smoothstep(center-halfGap,center+halfGap,cn);\nv_color=blendNormal(v_color,layer.color,pow(n,1.5));\n}\n}else if(u_shapeStyle<1.5){\n/* CONCENTRIC (dynamic): one or more ring-shapes drifting slowly across the\n   canvas. Within each shape the colours 2..N form a smooth radial gradient\n   that scrolls outward and loops (a colour grows from the centre to the\n   edge while the next emerges from the centre). Colour Blend sets how soft\n   the colour transitions are, Colour Repeats sets how many times the colour\n   set repeats within a shape, Shape Count sets how many separate shapes\n   appear, Radiate Speed sets the outward speed, Movement drifts the shapes\n   off and back onto the canvas, Shape Stretch elongates and breathes them,\n   Colour Spread sets size, Shape Definition sets the outer fade. */\nfloat rtime=u_time*0.000015*u_radiateSpeed;\nfloat bt=u_time*0.0003;\nfloat mt=u_time*0.0001;\nfloat nLayers=float(u_waveLayers_length);\nfloat halfTrans=mix(0.06,0.5,u_colorBlend);\nfloat ext0=max((0.7+u_spread*1.4)*(1.0-u_dominantBg*0.3),0.05);\nfloat soft=clamp(u_definition*0.6,0.05,0.95);\nvec3 acc=vec3(0.0);\nfloat wsum=0.0;\nfloat ampMax=0.0;\nfor(int s=0;s<4;s++){\nif(float(s)>=u_shapeCount)break;\nfloat fs=float(s);\nfloat r1=fract(sin(fs*43.13+1.7)*1231.43);\nfloat r2=fract(sin(fs*91.71+3.1)*9876.54);\nfloat r3=fract(sin(fs*12.37+5.9)*5432.19);\nfloat r4=fract(sin(fs*27.71+9.3)*3141.59);\nfloat sizeF=(u_shapeCount<1.5)?1.0:clamp(1.1/u_shapeCount,0.4,0.75);\nfloat ha=(fs+0.5)/u_shapeCount*6.2831+(r1-0.5)*0.9;\nfloat hr=(u_shapeCount<1.5)?0.0:mix(0.72,1.05,r2);\nvec2 home=vec2(cos(ha),sin(ha))*hr;\nvec2 drift=vec2(sin(mt*(0.7+0.5*r1)+fs*2.1),cos(mt*(0.55+0.5*r2)+fs*1.3))*u_drift;\nvec2 q=uvNorm-home-drift;\nfloat ang=u_flowAngle+((fs<0.5)?0.0:(r3-0.5)*6.2831);\nfloat ca=cos(ang);\nfloat sa=sin(ang);\nvec2 rq=vec2(q.x*ca+q.y*sa,-q.x*sa+q.y*ca);\nfloat stretchAmt=u_stretch*(0.55+0.45*sin(bt+fs));\nrq.x/=(1.0+stretchAmt*3.0);\nif(u_flowAmount>0.0){\nvec2 wc=q*1.2;\nfloat ft=time*u_vertDeform.noiseFlow*0.5;\nfloat wx=snoise(vec3(wc.x+13.0,wc.y+7.0,ft+fs));\nfloat wy=snoise(vec3(wc.x+71.0,wc.y+23.0,ft+5.0+fs));\nrq+=vec2(wx,wy)*u_flowAmount*0.6;\n}\nfloat extent=ext0*sizeF*mix(0.85,1.15,r4)*(1.0+0.12*sin(bt*0.85+fs));\nfloat rNorm=length(rq)/extent;\nfloat cyc=fract(rNorm*u_ringCount-rtime*(0.8+0.4*r1)+r2);\nfloat scaled=cyc*nLayers;\nfloat idx=floor(scaled);\nfloat idxB=mod(idx+1.0,nLayers);\nfloat tt=fract(scaled);\ntt=smoothstep(0.5-halfTrans,0.5+halfTrans,tt);\nvec3 colA=u_waveLayers[0].color;\nvec3 colB=u_waveLayers[0].color;\nfor(int i=0;i<u_waveLayers_length;i++){\nfloat fi=float(i);\nif(abs(fi-idx)<0.5)colA=u_waveLayers[i].color;\nif(abs(fi-idxB)<0.5)colB=u_waveLayers[i].color;\n}\nvec3 ring=mix(colA,colB,tt);\nfloat amp=1.0-smoothstep(1.0-soft,1.0+soft,rNorm);\nacc+=ring*amp;\nwsum+=amp;\nampMax=max(ampMax,amp);\n}\nvec3 blended=(wsum>0.0001)?(acc/wsum):u_baseColor;\nv_color=mix(u_baseColor,blended,ampMax);\n}else{\n/* BANDS: a wavy perspective fan whose colours radiate from the centre of\n   each band, separated by and glowing into a dark Background Colour. See\n   the block below for the controls. */\nfloat nLayersB=float(u_waveLayers_length);\nfloat pal=nLayersB+1.0;\n/* BANDS (perspective fan + radiating colours): the bands are wavy wedges\n   about a pivot off to one side (perspective), separated by the dark\n   Background Colour. Within each band the colours radiate out from the\n   centre-line to the edges and animate over time, and each band glows\n   softly into the gap beside it. Flow Angle rotates the fan, Perspective\n   the fan strength, Waviness the undulation, Band Thickness the spacing,\n   Colour Repeats the colour steps, Colour Blend the softness, Radiate\n   Speed the radiate. */\nfloat ar=max(aspectRatio,0.0001);\nfloat fa=u_flowAngle*0.0174533;\nfloat bca=cos(fa);\nfloat bsa=sin(fa);\nvec2 Pp=vec2(uvNorm.x*ar,uvNorm.y);\nvec2 Pr=vec2(Pp.x*bca+Pp.y*bsa,-Pp.x*bsa+Pp.y*bca);\nfloat persp=mix(7.0,1.4,clamp(u_bandVary,0.0,1.0));\nvec2 q=Pr-vec2(-persp-ar,0.0);\nfloat dist=length(q);\nfloat ang=atan(q.y,q.x);\nfloat coord=ang*(persp+ar)*3.0;\nfloat wav=mix(0.0,1.1,u_bandMax);\nif(wav>0.0){\nfloat wt=u_time*0.0001;\ncoord+=snoise(vec3(dist*0.8,ang*5.0,wt))*wav;\ncoord+=0.5*snoise(vec3(dist*1.7+5.0,ang*9.0,wt*1.3))*wav;\n}\nfloat halfTransB=mix(0.2,0.5,u_colorBlend);\n/* tile coord into bands of RANDOM width, so widths and gaps vary */\nfloat seed=u_bandSeed;\nfloat enN=7.0;\nfloat total=0.0;\nfor(int i=0;i<12;i++){\nif(float(i)>=enN)break;\nfloat h=fract(sin(float(i)*53.7+seed)*43758.5453);\ntotal+=mix(0.65,1.5,h);\n}\nfloat cc=mod(coord,total);\nif(cc<0.0)cc+=total;\nfloat cum=0.0;\nfloat cellIdx=0.0;\nfloat localT=0.5;\nfloat bandFrac=mix(0.5,0.9,u_bandMin);\nfor(int i=0;i<12;i++){\nif(float(i)>=enN)break;\nfloat h=fract(sin(float(i)*53.7+seed)*43758.5453);\nfloat w=mix(0.65,1.5,h);\nif(cc>=cum&&cc<cum+w){\ncellIdx=float(i);\nlocalT=(cc-cum)/w;\nfloat hj=fract(sin(float(i)*27.3+seed+3.1)*9123.7);\nbandFrac=clamp(mix(0.5,0.9,u_bandMin)*mix(0.78,1.18,hj),0.2,0.96);\n}\ncum+=w;\n}\nfloat d=abs(localT-0.5)*2.0;\nfloat r=clamp(d/bandFrac,0.0,1.0);\nfloat radin=u_time*0.00004*u_radiateSpeed;\nfloat cphase=r*u_ringCount-radin+cellIdx*0.37;\nfloat idx=floor(cphase);\nfloat cblend=smoothstep(0.5-halfTransB,0.5+halfTransB,fract(cphase));\nfloat iA=mod(idx,pal);\nif(iA<0.0)iA+=pal;\nfloat iB=mod(idx+1.0,pal);\nif(iB<0.0)iB+=pal;\nvec3 colC=u_baseColor;\nvec3 colD=u_baseColor;\nfor(int i=0;i<u_waveLayers_length;i++){\nfloat slot=float(i)+1.0;\nif(abs(slot-iA)<0.5)colC=u_waveLayers[i].color;\nif(abs(slot-iB)<0.5)colD=u_waveLayers[i].color;\n}\nvec3 radCol=mix(colC,colD,cblend);\n/* smooth body + a wide, soft glow that eases into the gaps */\nfloat body=1.0-smoothstep(bandFrac*0.45,bandFrac,d);\nfloat glow=1.0-smoothstep(bandFrac,bandFrac+0.65,d);\nglow=glow*glow;\nvec3 col=mix(u_bandBgColor,radCol,body);\ncol+=radCol*glow*0.3;\nv_color=clamp(col,0.0,1.0);\n}\n/* Satin sheen: a slow, flowing brightness variation that catches the\n   light along the colours (has least effect where colour 1 is dark). */\nif(u_sheen>0.0){\nfloat lite=snoise(vec3(uvNorm.x*2.5+time*0.05,uvNorm.y*2.5,time*0.1+11.0));\nv_color*=clamp(1.0+lite*u_sheen,0.0,2.5);\n}\ngl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);\n}';
 
-    var shaderFragment = 'varying vec3 v_color;\nvarying vec2 v_uvNorm;\nvec3 kdnaBands(vec2 uvn){\nfloat nLayersB=float(u_waveLayers_length);\nfloat pal=nLayersB+1.0;\nfloat ar=max(aspectRatio,0.0001);\nfloat fa=u_flowAngle;\nfloat ca=cos(fa);\nfloat sa=sin(fa);\nvec2 P=vec2(uvn.x*ar,uvn.y);\nfloat across=P.x*ca+P.y*sa;\nfloat along=-P.x*sa+P.y*ca;\nfloat persp01=clamp(u_bandVary,0.0,1.0);\nfloat vanish=mix(30.0,ar+1.3,persp01);\nfloat depth=along+vanish;\nfloat wt=u_time*0.0001;\nfloat wav=mix(0.0,0.7,u_bandMax);\nfloat warp=snoise(vec3(along*0.7+wt*0.3,across*0.5,wt))*wav;\nwarp+=0.5*snoise(vec3(along*1.5-wt*0.2,across*1.1+7.0,wt*1.3))*wav;\nfloat coord=(across/depth)*vanish*1.6+warp;\nfloat seed=u_bandSeed;\nfloat enN=7.0;\nfloat total=0.0;\nfor(int i=0;i<12;i++){\nif(float(i)>=enN)break;\nfloat h=fract(sin(float(i)*53.7+seed)*43758.5453);\ntotal+=mix(0.4,2.0,h);\n}\nfloat sweep=u_time*0.000015*u_bandMove;\nfloat cc=mod(coord+sweep,total);\nif(cc<0.0)cc+=total;\nfloat cum=0.0;\nfloat cellIdx=0.0;\nfloat localT=0.5;\nfloat bandFrac=mix(0.4,0.92,u_bandMin);\nfor(int i=0;i<12;i++){\nif(float(i)>=enN)break;\nfloat h=fract(sin(float(i)*53.7+seed)*43758.5453);\nfloat w=mix(0.4,2.0,h);\nif(cc>=cum&&cc<cum+w){\ncellIdx=float(i);\nlocalT=(cc-cum)/w;\nfloat hj=fract(sin(float(i)*27.3+seed+3.1)*9123.7);\nbandFrac=clamp(mix(0.4,0.92,u_bandMin)*mix(0.58,1.28,hj),0.16,0.96);\n}\ncum+=w;\n}\nfloat d=abs(localT-0.5)*2.0;\nfloat r=clamp(d/bandFrac,0.0,1.0);\nfloat radin=u_time*0.00004*u_radiateSpeed;\nfloat halfTransB=mix(0.2,0.5,u_colorBlend);\nfloat cphase=r*u_ringCount+along*0.45-radin*1.1+cellIdx*0.4;\nfloat idx=floor(cphase);\nfloat cblend=smoothstep(0.5-halfTransB,0.5+halfTransB,fract(cphase));\nfloat iA=mod(idx,pal);\nif(iA<0.0)iA+=pal;\nfloat iB=mod(idx+1.0,pal);\nif(iB<0.0)iB+=pal;\nvec3 colC=u_baseColor;\nvec3 colD=u_baseColor;\nfor(int i=0;i<u_waveLayers_length;i++){\nfloat slot=float(i)+1.0;\nif(abs(slot-iA)<0.5)colC=u_waveLayers[i].color;\nif(abs(slot-iB)<0.5)colD=u_waveLayers[i].color;\n}\nvec3 radCol=mix(colC,colD,cblend);\nfloat body=1.0-smoothstep(bandFrac*0.25,bandFrac+0.55,d);\nvec3 col=mix(u_bandBgColor,radCol,body);\nif(u_bandFade>0.0){\nfloat fScale=mix(0.6,3.0,u_bandFadeVar);\nfloat fn=snoise(vec3(P.x*fScale*0.5,P.y*fScale,wt*0.5))*0.5+0.5;\nfloat fade=u_bandFade*smoothstep(0.35,0.8,fn);\ncol=mix(col,u_bandBgColor,fade*body);\n}\nreturn clamp(col,0.0,1.0);\n}\nvec3 kdnaWash(vec2 uvn){\nfloat time=u_time*u_global.noiseSpeed;\nvec2 noiseCoord=resolution*uvn*u_global.noiseFreq;\nvec3 col=u_baseColor;\nvec2 cCoord=noiseCoord;\nif(u_flowAmount>0.0){\nvec2 wc=noiseCoord*2.0;\nfloat wt=time*u_vertDeform.noiseFlow*0.5;\nfloat wx=snoise(vec3(wc.x+13.0,wc.y+7.0,wt));\nfloat wy=snoise(vec3(wc.x+71.0,wc.y+23.0,wt+5.0));\nfloat ca=cos(u_flowAngle);\nfloat sa=sin(u_flowAngle);\ncCoord+=vec2(wx*ca-wy*sa,wx*sa+wy*ca)*u_flowAmount*0.5;\n}\nfloat scn=snoise(vec3(cCoord.x*0.9+time*6.5,cCoord.y*0.9,time*11.0+u_weightSeed))/2.0+0.5;\nfor(int i=0;i<u_waveLayers_length;i++){\nWaveLayers layer=u_waveLayers[i];\nfloat center=layer.wCenter-u_spread+u_dominantBg*0.28;\nfloat halfGap=max(layer.wHalf*u_definition,0.001);\nfloat cnL=snoise(vec3(cCoord.x*layer.noiseFreq.x+time*layer.noiseFlow,cCoord.y*layer.noiseFreq.y,time*layer.noiseSpeed+layer.noiseSeed))/2.0+0.5;\nfloat cn=(u_useWeights>0.5)?scn:cnL;\nfloat n=smoothstep(center-halfGap,center+halfGap,cn);\ncol=blendNormal(col,layer.color,pow(n,1.5));\n}\nif(u_sheen>0.0){\nfloat lite=snoise(vec3(uvn.x*2.5+time*0.05,uvn.y*2.5,time*0.1+11.0));\ncol*=clamp(1.0+lite*u_sheen,0.0,2.5);\n}\nreturn col;\n}\nvoid main(){\nvec3 color=v_color;\nif(u_shapeStyle<0.5){color=kdnaWash(v_uvNorm);}\nelse if(u_shapeStyle>1.5){color=kdnaBands(v_uvNorm);}\nif(u_darken_top==1.0){vec2 st=gl_FragCoord.xy/resolution.xy;color.g-=pow(st.y+sin(-12.0)*st.x,u_shadow_power)*0.4;}\nif(u_grain>0.0){\nfloat gn=fract(sin(dot(gl_FragCoord.xy+u_time*0.0015,vec2(12.9898,78.233)))*43758.5453);\ncolor+=(gn-0.5)*u_grain;\n}\nfloat kdith=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-0.5;\ncolor+=kdith*(1.5/255.0);\ngl_FragColor=vec4(color,1.0);\n}';
+    var shaderFragment = 'varying vec3 v_color;\nvoid main(){\nvec3 color=v_color;\nif(u_darken_top==1.0){vec2 st=gl_FragCoord.xy/resolution.xy;color.g-=pow(st.y+sin(-12.0)*st.x,u_shadow_power)*0.4;}\nif(u_grain>0.0){\nfloat gn=fract(sin(dot(gl_FragCoord.xy+u_time*0.0015,vec2(12.9898,78.233)))*43758.5453);\ncolor+=(gn-0.5)*u_grain;\n}\ngl_FragColor=vec4(color,1.0);\n}';
 
     /* ── Glass refraction (second pass) shaders ──
      * A full-screen quad samples the rendered gradient texture with a
@@ -276,7 +275,7 @@
      * ramp and is shaded as a rounded glass rod, for true reeded glass. */
     var shaderRefractVertex = 'precision highp float;\nattribute vec2 a_pos;\nvarying vec2 v_uv;\nvoid main(){v_uv=a_pos*0.5+0.5;gl_Position=vec4(a_pos,0.0,1.0);}';
 
-    var shaderRefractMain = 'varying vec2 v_uv;\nuniform sampler2D u_texture;\nuniform float u_aspect;\nuniform float u_time;\nuniform int u_glassType;\nuniform float u_strength;\nuniform float u_scale;\nuniform float u_rippleSpeed;\nuniform float u_ribCount;\nuniform float u_ribAngle;\nuniform float u_ribSharp;\nuniform float u_hiWidth;\nuniform float u_hiStr;\nuniform float u_shWidth;\nuniform float u_shStr;\nuniform float u_seed;\nuniform float u_diamondAngle;\nuniform float u_lightMove;\nuniform float u_bevelWidth;\nvec2 vhash2(vec2 x){return fract(sin(vec2(dot(x,vec2(127.1,311.7)),dot(x,vec2(269.5,183.3))))*43758.5453);}\nvoid glassCell(vec2 slope,float dome,float groove,float rnd,out vec2 odisp,out float ogain,out vec3 oadd){\nfloat bumpAmt=mix(1.2,4.5,u_hiStr);\nvec3 N=normalize(vec3(slope*bumpAmt,1.0));\nfloat lt=u_time*0.0008*u_lightMove;\nvec2 lightOff=vec2(sin(lt),cos(lt*0.8))*0.1*u_lightMove;\nvec2 refl=N.xy*u_strength*8.0+lightOff;\nodisp=clamp(vec2(refl.x/u_aspect,refl.y),-0.15,0.15);\nogain=(1.0-groove*u_shStr)*mix(0.82,1.18,rnd);\nfloat rim=pow(1.0-dome,2.0)*u_hiStr*0.9;\noadd=texture2D(u_texture,clamp(v_uv+clamp(odisp*1.6,-0.18,0.18),0.0,1.0)).rgb*rim;\n}\nvoid main(){\nvec2 uv=v_uv;\nvec2 disp=vec2(0.0);\nfloat gain=1.0;\nvec3 addCol=vec3(0.0);\nif(u_glassType==1){\nfloat freq=mix(18.0,1.5,clamp((u_scale-1.0)/49.0,0.0,1.0));\nvec2 nc=vec2(uv.x*u_aspect,uv.y)*freq;\nfloat t=u_time*u_rippleSpeed*0.00005;\nfloat nx=snoise(vec3(nc+u_seed,t));\nfloat ny=snoise(vec3(nc+u_seed+37.3,t+19.1));\ndisp=vec2(nx,ny)*u_strength;\n}else if(u_glassType==2){\n/* Fluted / reeded glass: an array of vertical cylindrical-lens ribs.\n   Within each rib the gradient is swept by a sawtooth ramp, so a\n   compressed slice of the colours repeats per rib (as when looking\n   through real reeded glass), and each rib is shaded like a rounded\n   glass rod lit from the right: a shadow on the left side of each flute\n   fading rightward, and a highlight on the right side fading leftward,\n   set by independent Width + Strength sliders (Width is how far the band\n   reaches across the flute, so Shadow Width 100% fades all the way from\n   the left edge to the right). Rib Sharpness morphs the lens (flute)\n   profile from a soft, round flute toward a flat-faceted prism. The\n   shading is purely multiplicative, so it scales with whatever is behind\n   the glass: over black it stays black and the ribs disappear, and the\n   highlight only brightens where there is real colour to catch. With\n   both strengths at 0 there is no shading line at all. */\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat ca=cos(u_ribAngle);\nfloat sa=sin(u_ribAngle);\nfloat coord=p.x*sa+p.y*ca;\nvec2 dir=vec2(sa,ca);\nfloat sharp=clamp(u_ribSharp,0.0,1.0);\nfloat local=fract(coord*u_ribCount)*2.0-1.0;\nfloat gamma=mix(1.7,1.0,sharp);\nfloat lens=sign(local)*pow(abs(local),gamma);\nvec2 d=dir*(-lens)*u_strength;\ndisp=vec2(d.x/u_aspect,d.y);\nfloat t=local*0.5+0.5;\nfloat dk=(1.0-smoothstep(0.0,u_shWidth,t))*u_shStr;\nfloat lt=smoothstep(1.0-u_hiWidth,1.0,t)*u_hiStr;\ngain=(1.0-dk)*(1.0+lt);\n}else if(u_glassType==3){\n/* Diamond glass: beveled tiles that REFLECT the gradient like real glass.\n   Each tile surface normal is used as a reflection vector to offset the\n   gradient sample, so every facet shows whatever colour lies in the\n   direction it faces (the bright part of the gradient appears on the facets\n   turned toward it - a real reflected highlight, not a white dot), and each\n   tile shows a smooth swatch of the gradient across it. Grooves between\n   tiles go dark. Refraction Strength = reflection spread, Rib Sharpness =\n   tile doming, Highlight Strength = bevel tilt + gloss, Shadow Strength =\n   groove depth, Light Movement drifts the reflected light. */\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat off=1.5707963-u_diamondAngle;\nfloat a1=u_ribAngle+off;\nfloat a2=u_ribAngle-off;\nvec2 dir1=vec2(sin(a1),cos(a1));\nvec2 dir2=vec2(sin(a2),cos(a2));\nfloat c1=p.x*dir1.x+p.y*dir1.y;\nfloat c2=p.x*dir2.x+p.y*dir2.y;\nfloat l1=fract(c1*u_ribCount)*2.0-1.0;\nfloat l2=fract(c2*u_ribCount)*2.0-1.0;\nfloat k=1.5707963;\nfloat c1c=cos(l1*k);\nfloat s1c=sin(l1*k);\nfloat c2c=cos(l2*k);\nfloat s2c=sin(l2*k);\nfloat dome=c1c*c2c;\nvec2 slope=dir1*(s1c*c2c)+dir2*(c1c*s2c);\nfloat edge=max(abs(l1),abs(l2));\nfloat groove=smoothstep(0.72,1.0,edge);\nfloat cellId1=floor(c1*u_ribCount);\nfloat cellId2=floor(c2*u_ribCount);\nfloat rnd=fract(sin(cellId1*12.9898+cellId2*78.233)*43758.5453);\nglassCell(slope,dome,groove,rnd,disp,gain,addCol);\n}else if(u_glassType==4){\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nvec2 hp=p*u_ribCount*1.1547;\nvec2 hgr=vec2(1.0,1.7320508);\nvec2 hhf=hgr*0.5;\nvec2 aa=mod(hp,hgr)-hhf;\nvec2 bb=mod(hp-hhf,hgr)-hhf;\nvec2 gv=dot(aa,aa)<dot(bb,bb)?aa:bb;\nvec2 cid=hp-gv;\nvec2 ga=abs(gv);\nfloat sharp=clamp(u_ribSharp,0.0,1.0);\nfloat t1=ga.y*0.8660254+ga.x*0.5;\nfloat hd=max(t1,ga.x);\nvec2 gnorm=(t1>ga.x)?vec2(0.5*sign(gv.x),0.8660254*sign(gv.y)):vec2(sign(gv.x),0.0);\nfloat e=clamp(hd*2.0,0.0,1.0);\nfloat flatR=mix(0.92,0.08,clamp(u_bevelWidth,0.0,1.0));\nfloat bev=smoothstep(flatR,1.0,e);\nfloat dome=1.0-bev;\nvec2 slope=normalize(gnorm+vec2(1e-5))*bev;\nfloat groove=smoothstep(0.9,1.0,e);\nfloat rnd=fract(sin(cid.x*12.9898+cid.y*78.233)*43758.5453);\nglassCell(slope,dome,groove,rnd,disp,gain,addCol);\n}else if(u_glassType==5){\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nvec2 vp=p*u_ribCount*0.55;\nvec2 ip=floor(vp);\nvec2 fp=fract(vp);\nvec2 mo=vec2(0.0);\nvec2 mcid=vec2(0.0);\nfloat md=8.0;\nfor(int j=-1;j<=1;j++){\nfor(int i=-1;i<=1;i++){\nvec2 g=vec2(float(i),float(j));\nvec2 o=g+vhash2(ip+g);\nvec2 rr=o-fp;\nfloat dd=dot(rr,rr);\nif(dd<md){md=dd;mo=o;mcid=ip+g;}\n}\n}\nfloat ed=8.0;\nfor(int j=-2;j<=2;j++){\nfor(int i=-2;i<=2;i++){\nvec2 g=vec2(float(i),float(j));\nvec2 o=g+vhash2(ip+g);\nvec2 diff=o-mo;\nfloat dl=dot(diff,diff);\nif(dl>0.0001){ed=min(ed,dot(0.5*(o+mo)-fp,normalize(diff)));}\n}\n}\nfloat sharp=clamp(u_ribSharp,0.0,1.0);\nfloat bevelW=mix(0.06,0.45,clamp(u_bevelWidth,0.0,1.0));\nfloat dome=smoothstep(0.01,bevelW,ed);\nvec2 outv=normalize(fp-mo+vec2(1e-5));\nvec2 slope=outv*(1.0-dome);\nfloat groove=1.0-smoothstep(0.0,0.16,ed);\nfloat rnd=fract(sin(mcid.x*34.7+mcid.y*81.3)*4733.1);\nglassCell(slope,dome,groove,rnd,disp,gain,addCol);}\ndisp=clamp(disp,-0.15,0.15);\nvec3 ocol=clamp(texture2D(u_texture,clamp(uv+disp,0.0,1.0)).rgb*gain+addCol,0.0,1.0);\nfloat odith=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-0.5;\ngl_FragColor=vec4(ocol+odith*(1.5/255.0),1.0);\n}';
+    var shaderRefractMain = 'varying vec2 v_uv;\nuniform sampler2D u_texture;\nuniform float u_aspect;\nuniform float u_time;\nuniform int u_glassType;\nuniform float u_strength;\nuniform float u_scale;\nuniform float u_rippleSpeed;\nuniform float u_ribCount;\nuniform float u_ribAngle;\nuniform float u_ribSharp;\nuniform float u_hiWidth;\nuniform float u_hiStr;\nuniform float u_shWidth;\nuniform float u_shStr;\nuniform float u_seed;\nvoid main(){\nvec2 uv=v_uv;\nvec2 disp=vec2(0.0);\nfloat gain=1.0;\nif(u_glassType==1){\nfloat freq=mix(18.0,1.5,clamp((u_scale-1.0)/49.0,0.0,1.0));\nvec2 nc=vec2(uv.x*u_aspect,uv.y)*freq;\nfloat t=u_time*u_rippleSpeed*0.00005;\nfloat nx=snoise(vec3(nc+u_seed,t));\nfloat ny=snoise(vec3(nc+u_seed+37.3,t+19.1));\ndisp=vec2(nx,ny)*u_strength;\n}else if(u_glassType==2){\n/* Fluted / reeded glass: an array of vertical cylindrical-lens ribs.\n   Within each rib the gradient is swept by a sawtooth ramp, so a\n   compressed slice of the colours repeats per rib (as when looking\n   through real reeded glass), and each rib is shaded like a rounded\n   glass rod lit from the right: a shadow on the left side of each flute\n   fading rightward, and a highlight on the right side fading leftward,\n   set by independent Width + Strength sliders (Width is how far the band\n   reaches across the flute, so Shadow Width 100% fades all the way from\n   the left edge to the right). Rib Sharpness morphs the lens (flute)\n   profile from a soft, round flute toward a flat-faceted prism. The\n   shading is purely multiplicative, so it scales with whatever is behind\n   the glass: over black it stays black and the ribs disappear, and the\n   highlight only brightens where there is real colour to catch. With\n   both strengths at 0 there is no shading line at all. */\nvec2 p=vec2((uv.x-0.5)*u_aspect,uv.y-0.5);\nfloat ca=cos(u_ribAngle);\nfloat sa=sin(u_ribAngle);\nfloat coord=p.x*sa+p.y*ca;\nvec2 dir=vec2(sa,ca);\nfloat sharp=clamp(u_ribSharp,0.0,1.0);\nfloat local=fract(coord*u_ribCount)*2.0-1.0;\nfloat gamma=mix(1.7,1.0,sharp);\nfloat lens=sign(local)*pow(abs(local),gamma);\nvec2 d=dir*(-lens)*u_strength;\ndisp=vec2(d.x/u_aspect,d.y);\nfloat t=local*0.5+0.5;\nfloat dk=(1.0-smoothstep(0.0,u_shWidth,t))*u_shStr;\nfloat lt=smoothstep(1.0-u_hiWidth,1.0,t)*u_hiStr;\ngain=(1.0-dk)*(1.0+lt);\n}\ngl_FragColor=vec4(clamp(texture2D(u_texture,clamp(uv+disp,0.0,1.0)).rgb*gain,0.0,1.0),1.0);\n}';
 
     /* ═══════════════════════════════════════
      * KDNAGradient - WebGL
@@ -303,42 +302,21 @@
         if (w < 10) w = 300;
         if (h < 10) h = 200;
 
-        /* Faceted glass (diamond/hexagon/organic) and fluted ribs have hard
-           geometric edges and sharp displacement seams between cells that
-           alias badly at 1x. Render those at a higher internal resolution and
-           let the CSS-stretched canvas box-downsample it (supersampling AA).
-           Smooth gradients don't need it, so the boost is glass-only. */
-        var _glassType = cfg.glassType || 'none';
-        self._glassAA = ( _glassType === 'fluted' || _glassType === 'diamond' || _glassType === 'hexagon' || _glassType === 'organic' ) && ( parseFloat(cfg.refractStrength) || 0 ) > 0;
-        var dpr = self._glassAA ? Math.min(Math.max(window.devicePixelRatio || 1, 2) * 1.5, 3)
-                                : Math.min(window.devicePixelRatio || 1, 2);
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
         var pw = Math.round(w * dpr);
         var ph = Math.round(h * dpr);
 
         self.minigl = new MiniGl(canvas, pw, ph);
 
-        /* Cap the internal resolution to what the GPU can actually allocate.
-           This must respect BOTH the viewport limit AND MAX_TEXTURE_SIZE: the
-           glass refraction pass renders into an FBO texture, and the
-           supersampling boost above can push the size past MAX_TEXTURE_SIZE on
-           some GPUs (commonly 4096). When texImage2D exceeds that limit the
-           texture is left at 0x0 and the framebuffer becomes "incomplete:
-           attachment has zero size" - a white canvas plus GL error spam that
-           only clears on a resize. Capping to the texture limit prevents it.
-           The cap scales both axes by the same factor so the aspect ratio (and
-           therefore u_aspect) stays correct; CSS width/height:100% stretches
-           the capped canvas back to fill the container. */
-        var glc = self.minigl.gl;
-        var vpDims = glc.getParameter(glc.MAX_VIEWPORT_DIMS);
-        var maxTex = glc.getParameter(glc.MAX_TEXTURE_SIZE) || 4096;
-        var vpW = ( vpDims && vpDims[0] > 0 ) ? vpDims[0] : 8192;
-        var vpH = ( vpDims && vpDims[1] > 0 ) ? vpDims[1] : 8192;
-        self._maxDims = [ Math.min( vpW, maxTex ), Math.min( vpH, maxTex ) ];
-        var capped = self._capDims( pw, ph );
-        if ( capped[0] !== pw || capped[1] !== ph ) {
-            pw = capped[0];
-            ph = capped[1];
-            self.minigl.setSize( pw, ph );
+        /* Cap canvas to GPU viewport limits so tall/wide containers
+           don't exceed the renderbuffer and render only partially.
+           CSS width/height:100% stretches the capped canvas to fill. */
+        var maxDims = self.minigl.gl.getParameter(self.minigl.gl.MAX_VIEWPORT_DIMS);
+        self._maxDims = maxDims || [8192, 8192];
+        if (pw > self._maxDims[0] || ph > self._maxDims[1]) {
+            pw = Math.min(pw, self._maxDims[0]);
+            ph = Math.min(ph, self._maxDims[1]);
+            self.minigl.setSize(pw, ph);
         }
 
         canvas.style.width = '100%';
@@ -410,15 +388,6 @@
         var bandMin = (cfg.bandMin != null ? cfg.bandMin : 25) / 100;
         var bandMax = (cfg.bandMax != null ? cfg.bandMax : 60) / 100;
         var bandVary = (cfg.bandVary != null ? cfg.bandVary : 50) / 100;
-        /* Band Movement: how fast the whole fan of bands travels across the
-           canvas, independent of Radiate Speed (which moves the colours
-           within the bands). Raw 0-100 slider value. */
-        var bandMove = cfg.bandMove != null ? cfg.bandMove : 40;
-        /* Band Fade: softly fades patches of the bands to the Background
-           Colour (like a wash), over many pixels. Amount = how much; Var =
-           uniform (low) to small random patches (high). */
-        var bandFade = (cfg.bandFade != null ? cfg.bandFade : 0) / 100;
-        var bandFadeVar = (cfg.bandFadeVar != null ? cfg.bandFadeVar : 50) / 100;
 
         /* Texture: subtle film grain (per-pixel speckle) and a satin sheen
            (slow brightness variation that catches the light along the
@@ -447,75 +416,33 @@
                     noiseSpeed: new self.minigl.Uniform({ value: 10 }),
                     noiseFlow: new self.minigl.Uniform({ value: 3 }),
                     noiseSeed: new self.minigl.Uniform({ value: cfg.seed || 5 })
-                }, type: 'struct'
+                }, type: 'struct', excludeFrom: 'fragment'
             }),
-            u_baseColor: new self.minigl.Uniform({ value: colors[0] || [0, 0, 0], type: 'vec3' }),
-            u_bandBgColor: new self.minigl.Uniform({ value: bandBgColor, type: 'vec3' }),
-            u_waveLayers: new self.minigl.Uniform({ value: [], type: 'array' }),
-            u_flowAmount: new self.minigl.Uniform({ value: flowAmount }),
-            u_flowAngle: new self.minigl.Uniform({ value: flowAngle }),
-            u_definition: new self.minigl.Uniform({ value: definitionMul }),
-            u_spread: new self.minigl.Uniform({ value: spreadBias }),
-            u_shapeStyle: new self.minigl.Uniform({ value: shapeStyle }),
+            u_baseColor: new self.minigl.Uniform({ value: colors[0] || [0, 0, 0], type: 'vec3', excludeFrom: 'fragment' }),
+            u_bandBgColor: new self.minigl.Uniform({ value: bandBgColor, type: 'vec3', excludeFrom: 'fragment' }),
+            u_waveLayers: new self.minigl.Uniform({ value: [], excludeFrom: 'fragment', type: 'array' }),
+            u_flowAmount: new self.minigl.Uniform({ value: flowAmount, excludeFrom: 'fragment' }),
+            u_flowAngle: new self.minigl.Uniform({ value: flowAngle, excludeFrom: 'fragment' }),
+            u_definition: new self.minigl.Uniform({ value: definitionMul, excludeFrom: 'fragment' }),
+            u_spread: new self.minigl.Uniform({ value: spreadBias, excludeFrom: 'fragment' }),
+            u_shapeStyle: new self.minigl.Uniform({ value: shapeStyle, excludeFrom: 'fragment' }),
             u_stretch: new self.minigl.Uniform({ value: stretch, excludeFrom: 'fragment' }),
-            u_dominantBg: new self.minigl.Uniform({ value: dominantBg }),
-            u_radiateSpeed: new self.minigl.Uniform({ value: radiateSpeed }),
-            u_ringCount: new self.minigl.Uniform({ value: ringCount }),
+            u_dominantBg: new self.minigl.Uniform({ value: dominantBg, excludeFrom: 'fragment' }),
+            u_radiateSpeed: new self.minigl.Uniform({ value: radiateSpeed, excludeFrom: 'fragment' }),
+            u_ringCount: new self.minigl.Uniform({ value: ringCount, excludeFrom: 'fragment' }),
             u_shapeCount: new self.minigl.Uniform({ value: shapeCount, excludeFrom: 'fragment' }),
-            u_colorBlend: new self.minigl.Uniform({ value: colorBlend }),
+            u_colorBlend: new self.minigl.Uniform({ value: colorBlend, excludeFrom: 'fragment' }),
             u_drift: new self.minigl.Uniform({ value: drift, excludeFrom: 'fragment' }),
-            u_bandMin: new self.minigl.Uniform({ value: bandMin }),
-            u_bandMax: new self.minigl.Uniform({ value: bandMax }),
-            u_bandVary: new self.minigl.Uniform({ value: bandVary }),
-            u_bandMove: new self.minigl.Uniform({ value: bandMove }),
-            u_bandFade: new self.minigl.Uniform({ value: bandFade }),
-            u_bandFadeVar: new self.minigl.Uniform({ value: bandFadeVar }),
-            u_bandSeed: new self.minigl.Uniform({ value: cfg.seed || 5 }),
-            u_sheen: new self.minigl.Uniform({ value: sheen }),
+            u_bandMin: new self.minigl.Uniform({ value: bandMin, excludeFrom: 'fragment' }),
+            u_bandMax: new self.minigl.Uniform({ value: bandMax, excludeFrom: 'fragment' }),
+            u_bandVary: new self.minigl.Uniform({ value: bandVary, excludeFrom: 'fragment' }),
+            u_bandSeed: new self.minigl.Uniform({ value: cfg.seed || 5, excludeFrom: 'fragment' }),
+            u_sheen: new self.minigl.Uniform({ value: sheen, excludeFrom: 'fragment' }),
             u_grain: new self.minigl.Uniform({ value: grain, excludeFrom: 'vertex' })
         };
 
-        /* Colour proportions (Wash). Each colour has an optional weight - the
-           % of the canvas it should occupy (NOT opacity). Colour 1 is the
-           background. When weights are supplied the colours are laid out as
-           cumulative bands across the noise field, so a colour with a higher %
-           covers proportionally more area (colour 1 > colour 2 > ... when its
-           % is higher). With no weights we fall back to the original threshold
-           formula, so existing presets render exactly as before. */
-        var rawWeights = Array.isArray(cfg.colourWeights) ? cfg.colourWeights : [];
-        var wSum = 0;
-        for (var wi = 0; wi < colors.length; wi++) wSum += Math.max(0, parseFloat(rawWeights[wi]) || 0);
-        var weightsActive = rawWeights.length > 0 && wSum > 0;
-        var pNorm = [], wPrefix = [0];
-        for (var wj = 0; wj < colors.length; wj++) {
-            var pv = weightsActive ? (Math.max(0, parseFloat(rawWeights[wj]) || 0) / wSum) : 0;
-            pNorm.push(pv);
-            wPrefix.push(wPrefix[wj] + pv);
-        }
-        var wLo = 0.18, wHi = 0.82;
-        /* Weighted mode makes all colours read ONE shared noise field (set in
-           the shader) and carves it into cumulative bands, so the visible area
-           of each colour tracks its %. Without this, each colour used its own
-           noise and later (list-order) colours painted over earlier ones, so
-           the % barely affected the result. */
-        uniforms.u_useWeights = new self.minigl.Uniform({ value: weightsActive ? 1 : 0 });
-        uniforms.u_weightSeed = new self.minigl.Uniform({ value: (cfg.seed || 5) * 3.1 });
-
         var maxLayers = Math.min(colors.length - 1, 9);
         for (var c = 1; c <= maxLayers; c++) {
-            var nFloor = 0.1, nCeil = 0.63 + 0.035 * c;
-            var wCenter, wHalf;
-            if (weightsActive) {
-                /* Colour c wins the band [wPrefix[c], wPrefix[c+1]] of the shared
-                   field; its centre is the band's lower edge and the transition
-                   is kept a fraction of the smaller adjacent band so thin (low-%)
-                   colours still show. */
-                wCenter = wLo + (wHi - wLo) * wPrefix[c];
-                wHalf = Math.max(0.01, 0.5 * (wHi - wLo) * Math.min(pNorm[c - 1], pNorm[c]));
-            } else {
-                wCenter = (nFloor + nCeil) * 0.5;
-                wHalf = (nCeil - nFloor) * 0.5;
-            }
             uniforms.u_waveLayers.value.push(new self.minigl.Uniform({
                 value: {
                     color: new self.minigl.Uniform({ value: colors[c], type: 'vec3' }),
@@ -523,19 +450,20 @@
                     noiseSpeed: new self.minigl.Uniform({ value: 11 + 0.3 * c }),
                     noiseFlow: new self.minigl.Uniform({ value: 6.5 + 0.3 * c }),
                     noiseSeed: new self.minigl.Uniform({ value: (cfg.seed || 5) + 10 * c }),
-                    noiseFloor: new self.minigl.Uniform({ value: nFloor }),
-                    noiseCeil: new self.minigl.Uniform({ value: nCeil }),
-                    wCenter: new self.minigl.Uniform({ value: wCenter }),
-                    wHalf: new self.minigl.Uniform({ value: wHalf })
+                    noiseFloor: new self.minigl.Uniform({ value: 0.1 }),
+                    noiseCeil: new self.minigl.Uniform({ value: 0.63 + 0.035 * c })
                 }, type: 'struct'
             }));
         }
 
         var vertexSrc = shaderNoise + '\n\n' + shaderBlend + '\n\n' + shaderVertex;
-        self.material = new self.minigl.Material(vertexSrc, shaderNoise + '\n\n' + shaderBlend + '\n\n' + shaderFragment, uniforms);
+        self.material = new self.minigl.Material(vertexSrc, shaderFragment, uniforms);
 
         /* Density: higher multiplier = more mesh segments = smoother gradients */
         var densityMul = (cfg.density || 6) * 0.004;
+        /* Bands compute their colour per mesh-vertex, so the wavy edges need a
+           much finer mesh than the other styles to avoid stair-stepping. */
+        if (cfg.shapeStyle === 'bands') densityMul *= 3.5;
         var xSeg = Math.min(400, Math.max(12, Math.ceil(pw * densityMul)));
         var ySeg = Math.min(400, Math.max(12, Math.ceil(ph * densityMul)));
 
@@ -558,45 +486,14 @@
         /* Resize handler (ResizeObserver catches CSS/Elementor breakpoint
            changes, window resize catches browser chrome and DPR changes) */
         self._lastW = w; self._lastH = h;
-        self._onResize = function () { self._syncSize(false); };
-        if ('ResizeObserver' in window) {
-            self._resizeObs = new ResizeObserver(self._onResize);
-            self._resizeObs.observe(parent);
-        }
-        window.addEventListener('resize', self._onResize);
-
-        self.play();
-
-        /* Self-heal against the layout race: the container often gets its final
-           height AFTER our first render (web fonts, images, flex, Elementor,
-           lazy sections), which left the canvas blank until the user nudged the
-           window. Re-measure and repaint on the next frame and a few times over
-           the first second so it appears on its own. force=true re-runs the
-           full size/camera/geometry setup (what a manual resize did) even when
-           the measured size is unchanged, clearing any stale first-frame state. */
-        var kick = function () { self._syncSize(true); };
-        if (typeof requestAnimationFrame === 'function') requestAnimationFrame(kick);
-        self._kickTimers = [setTimeout(kick, 150), setTimeout(kick, 500), setTimeout(kick, 1200)];
-    };
-
-    /**
-     * Re-measure the container and, if the size changed (or force is true),
-     * re-apply the canvas size, camera, mesh topology and refraction target,
-     * then repaint. Repainting unconditionally means a size we missed at init
-     * becomes visible without waiting for a window resize.
-     */
-    KDNAGradient.prototype._syncSize = function (force) {
-        var self = this;
-        if (!self.minigl || !self.canvas || !self.canvas.parentElement) return;
-        var parent = self.canvas.parentElement;
-        var nw = parent.offsetWidth || 300;
-        var nh = parent.offsetHeight || 200;
-        if (force || nw !== self._lastW || nh !== self._lastH) {
+        self._onResize = function () {
+            var nw = parent.offsetWidth || 300;
+            var nh = parent.offsetHeight || 200;
+            if (nw === self._lastW && nh === self._lastH) return;
             self._lastW = nw; self._lastH = nh;
-            var nd = self._glassAA ? Math.min(Math.max(window.devicePixelRatio || 1, 2) * 1.5, 3)
-                                   : Math.min(window.devicePixelRatio || 1, 2);
-            var cap = self._capDims(nw * nd, nh * nd);
-            var npw = cap[0], nph = cap[1];
+            var nd = Math.min(window.devicePixelRatio || 1, 2);
+            var npw = Math.min(Math.round(nw * nd), self._maxDims[0]);
+            var nph = Math.min(Math.round(nh * nd), self._maxDims[1]);
             self.minigl.setSize(npw, nph);
             self.minigl.setOrthographicCamera();
             var nx = Math.min(400, Math.max(12, Math.ceil(npw * self.densityMul)));
@@ -605,9 +502,14 @@
             self.mesh.geometry.setSize(npw, nph);
             self.uniforms.u_shadow_power.value = nw < 600 ? 5 : 6;
             if (self.refractActive) self._resizeRefraction(npw, nph);
+        };
+        if ('ResizeObserver' in window) {
+            self._resizeObs = new ResizeObserver(self._onResize);
+            self._resizeObs.observe(parent);
         }
-        self.uniforms.u_time.value = self.t;
-        self.renderFrame();
+        window.addEventListener('resize', self._onResize);
+
+        self.play();
     };
 
     KDNAGradient.prototype.animate = function (ts) {
@@ -630,25 +532,8 @@
         this.playing = false;
         if (this.raf) { cancelAnimationFrame(this.raf); this.raf = null; }
     };
-    /**
-     * Scale (pw, ph) down uniformly so neither axis exceeds the GPU limits in
-     * self._maxDims, preserving aspect ratio. Never returns below 1x1.
-     */
-    KDNAGradient.prototype._capDims = function (pw, ph) {
-        var m = this._maxDims || [8192, 8192];
-        pw = Math.max(1, Math.round(pw) || 1);
-        ph = Math.max(1, Math.round(ph) || 1);
-        var s = Math.min(1, m[0] / pw, m[1] / ph);
-        if (s < 1) {
-            pw = Math.max(1, Math.floor(pw * s));
-            ph = Math.max(1, Math.floor(ph * s));
-        }
-        return [pw, ph];
-    };
-
     KDNAGradient.prototype.destroy = function () {
         this.pause();
-        if (this._kickTimers) { for (var k = 0; k < this._kickTimers.length; k++) clearTimeout(this._kickTimers[k]); this._kickTimers = null; }
         if (this._resizeObs) this._resizeObs.disconnect();
         if (this._onResize) window.removeEventListener('resize', this._onResize);
         if (this.refractActive && this.minigl) {
@@ -673,11 +558,11 @@
         var type = cfg.glassType || 'none';
         var strength = parseFloat(cfg.refractStrength) || 0;
 
-        self.refractActive = ( type === 'liquid' || type === 'fluted' || type === 'diamond' || type === 'hexagon' || type === 'organic' ) && strength > 0;
+        self.refractActive = ( type === 'liquid' || type === 'fluted' ) && strength > 0;
         if (!self.refractActive) return;
 
         var gl = self.minigl.gl;
-        self._glTypeNum = type === 'liquid' ? 1 : ( type === 'fluted' ? 2 : ( type === 'diamond' ? 3 : ( type === 'hexagon' ? 4 : 5 ) ) );
+        self._glTypeNum = type === 'liquid' ? 1 : 2;
 
         /* Map admin values to shader-friendly values */
         self._rUniforms = {
@@ -686,10 +571,7 @@
             rippleSpeed: parseFloat(cfg.refractSpeed) || 5,
             ribCount:    parseFloat(cfg.ribCount) || 40,
             ribAngle:    (parseFloat(cfg.ribAngle) || 0) * Math.PI / 180,
-            diamondAngle:(cfg.diamondAngle != null ? parseFloat(cfg.diamondAngle) : 45) * Math.PI / 180,
-            lightMove:   (cfg.lightMove != null ? parseFloat(cfg.lightMove) : 30) / 100,
             ribSharp:    (cfg.ribSharp != null ? parseFloat(cfg.ribSharp) : 0) / 100,
-            bevelWidth:  (cfg.bevelWidth != null ? parseFloat(cfg.bevelWidth) : 50) / 100,
             /* Rib shading: directional, lit from the right. Width is how far
                the band reaches across the flute (0.05 = a thin edge band,
                1.0 = the full flute width); Strength is its intensity. Shadow
@@ -728,10 +610,7 @@
             rippleSpeed: gl.getUniformLocation(prog, 'u_rippleSpeed'),
             ribCount:    gl.getUniformLocation(prog, 'u_ribCount'),
             ribAngle:    gl.getUniformLocation(prog, 'u_ribAngle'),
-            diamondAngle:gl.getUniformLocation(prog, 'u_diamondAngle'),
-            lightMove:   gl.getUniformLocation(prog, 'u_lightMove'),
             ribSharp:    gl.getUniformLocation(prog, 'u_ribSharp'),
-            bevelWidth:  gl.getUniformLocation(prog, 'u_bevelWidth'),
             hiWidth:     gl.getUniformLocation(prog, 'u_hiWidth'),
             hiStr:       gl.getUniformLocation(prog, 'u_hiStr'),
             shWidth:     gl.getUniformLocation(prog, 'u_shWidth'),
@@ -757,10 +636,6 @@
      */
     KDNAGradient.prototype._resizeRefraction = function (pw, ph) {
         var self = this, gl = self.minigl.gl;
-        /* Never allocate a 0-size (or over-limit) FBO texture: that makes the
-           framebuffer incomplete and every draw fails. */
-        var cap = self._capDims(pw, ph);
-        pw = cap[0]; ph = cap[1];
         self._postW = pw; self._postH = ph;
         gl.bindTexture(gl.TEXTURE_2D, self._fboTex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, pw, ph, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -780,10 +655,7 @@
      */
     KDNAGradient.prototype.renderFrame = function () {
         var self = this;
-        /* Fall back to a plain direct render if the refraction target isn't a
-           valid size yet (container had no height at init, etc.) so we never
-           draw into a zero-size framebuffer. */
-        if (!self.refractActive || !(self._postW > 0) || !(self._postH > 0)) { self.minigl.render(); return; }
+        if (!self.refractActive) { self.minigl.render(); return; }
         var gl = self.minigl.gl;
         gl.bindFramebuffer(gl.FRAMEBUFFER, self._fbo);
         gl.viewport(0, 0, self._postW, self._postH);
@@ -804,10 +676,7 @@
         gl.uniform1f(u.rippleSpeed, r.rippleSpeed);
         gl.uniform1f(u.ribCount, r.ribCount);
         gl.uniform1f(u.ribAngle, r.ribAngle);
-        gl.uniform1f(u.diamondAngle, r.diamondAngle);
-        gl.uniform1f(u.lightMove, r.lightMove);
         gl.uniform1f(u.ribSharp, r.ribSharp);
-        gl.uniform1f(u.bevelWidth, r.bevelWidth);
         gl.uniform1f(u.hiWidth, r.hiWidth);
         gl.uniform1f(u.hiStr, r.hiStr);
         gl.uniform1f(u.shWidth, r.shWidth);
