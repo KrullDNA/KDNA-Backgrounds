@@ -1,12 +1,13 @@
 {# ===================================================================
-   KDNA Animated Background — HubSpot module
+   KDNA Animated Background — HubSpot module (Wash + Fluted only)
    Renders a canvas + a JSON config block. The engine + bootstrap in
    module.js find every .kdna-bg-module on the page and start it.
    =================================================================== #}
 
-{% set wash = module.wash_group %}
-{% set glass = module.glass_group %}
-{% set layout = module.layout_group %}
+{% set anim   = module.animation %}
+{% set wash   = module.wash %}
+{% set glass  = module.glass %}
+{% set layout = module.layout %}
 
 <div class="kdna-bg-module" id="kdna-bg-{{ name }}" style="min-height: {{ layout.height|default(500) }}px;">
 
@@ -25,20 +26,21 @@
 
   <script type="application/json" class="kdna-bg-config">{
     "colours": [{% for item in module.colours %}"{{ item.colour.color }}"{% if not loop.last %},{% endif %}{% endfor %}],
+    "colourWeights": [{% for item in module.colours %}{{ item.weight|default(0) }}{% if not loop.last %},{% endif %}{% endfor %}],
     "shapeStyle": "wash",
-    "speed": {{ wash.speed|default(5) }},
-    "amplitude": {{ wash.amplitude|default(100) }},
-    "density": {{ wash.density|default(6) }},
-    "seed": {{ wash.seed|default(5) }},
-    "darkenTop": {{ "true" if wash.darken_top else "false" }},
-    "dominantBg": {{ "true" if wash.dominant_bg else "false" }},
+    "speed": {{ anim.speed|default(5) }},
+    "amplitude": {{ anim.amplitude|default(320) }},
+    "density": {{ anim.density|default(6) }},
+    "seed": {{ anim.seed|default(5) }},
+    "darkenTop": {{ "true" if anim.darken_top else "false" }},
     "flowAmount": {{ wash.flow_amount|default(0) }},
     "flowAngle": {{ wash.flow_angle|default(0) }},
     "definition": {{ wash.definition|default(40) }},
     "spread": {{ wash.spread|default(50) }},
     "sheen": {{ wash.sheen|default(0) }},
     "grain": {{ wash.grain|default(0) }},
-    "glassType": "{{ glass.glass_type|default('none') }}",
+    "dominantBg": {{ "true" if wash.dominant_bg else "false" }},
+    "glassType": "{{ glass.glass_type|default('fluted') }}",
     "refractStrength": {{ glass.refract_strength|default(30) }},
     "refractScale": 12,
     "refractSpeed": 5,

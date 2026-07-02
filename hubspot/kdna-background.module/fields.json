@@ -2,14 +2,14 @@
   {
     "id": "colours",
     "name": "colours",
-    "label": "Colours",
-    "help_text": "Two or more colours blended into the wash gradient. Colour 1 is the dominant background.",
+    "label": "Gradient Colours",
+    "help_text": "Two or more colours blended into the Wash gradient. Drag to reorder. The % sets how much of the mix each colour takes up (not its opacity); a higher % fills more of the background. Values are balanced automatically, so they need not add up to 100.",
     "type": "group",
-    "occurrence": { "min": 2, "max": 8, "default": 3, "sorting_label_field": "colours.colour" },
+    "occurrence": { "min": 2, "max": 10, "default": 3, "sorting_label_field": "colours.colour" },
     "default": [
-      { "colour": { "color": "#0a2463", "opacity": 100 } },
-      { "colour": { "color": "#1e6bff", "opacity": 100 } },
-      { "colour": { "color": "#3d8bff", "opacity": 100 } }
+      { "colour": { "color": "#0a2463", "opacity": 100 }, "weight": 40 },
+      { "colour": { "color": "#1e6bff", "opacity": 100 }, "weight": 35 },
+      { "colour": { "color": "#3d8bff", "opacity": 100 }, "weight": 25 }
     ],
     "children": [
       {
@@ -18,22 +18,315 @@
         "label": "Colour",
         "type": "color",
         "default": { "color": "#1e6bff", "opacity": 100 }
+      },
+      {
+        "id": "colours.weight",
+        "name": "weight",
+        "label": "% of mix",
+        "type": "number",
+        "display": "text",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "suffix": "%",
+        "default": 25
       }
     ]
   },
 
   {
-    "id": "layout_group",
-    "name": "layout_group",
-    "label": "Layout",
+    "id": "animation",
+    "name": "animation",
+    "label": "Animation Settings",
     "type": "group",
     "expanded": true,
+    "children": [
+      {
+        "id": "speed",
+        "name": "speed",
+        "label": "Speed",
+        "help_text": "How fast the gradient animates. 1 = very slow, 20 = very fast.",
+        "type": "number",
+        "display": "slider",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "default": 5
+      },
+      {
+        "id": "amplitude",
+        "name": "amplitude",
+        "label": "Wave Amplitude",
+        "help_text": "How much the colour waves move. Low = subtle blending, high = dramatic waves.",
+        "type": "number",
+        "display": "slider",
+        "min": 10,
+        "max": 500,
+        "step": 10,
+        "default": 320
+      },
+      {
+        "id": "density",
+        "name": "density",
+        "label": "Mesh Density",
+        "help_text": "Higher = smoother gradients, lower = more angular.",
+        "type": "number",
+        "display": "slider",
+        "min": 2,
+        "max": 12,
+        "step": 1,
+        "default": 6
+      },
+      {
+        "id": "seed",
+        "name": "seed",
+        "label": "Randomness Seed",
+        "help_text": "Different seeds create different wave patterns.",
+        "type": "number",
+        "display": "text",
+        "min": 1,
+        "max": 100,
+        "step": 1,
+        "default": 5
+      },
+      {
+        "id": "darken_top",
+        "name": "darken_top",
+        "label": "Darken Top Edge",
+        "help_text": "Adds a subtle shadow at the top of the canvas.",
+        "type": "boolean",
+        "display": "toggle",
+        "default": false
+      }
+    ]
+  },
+
+  {
+    "id": "wash",
+    "name": "wash",
+    "label": "Colour Shapes (Wash)",
+    "type": "group",
+    "expanded": true,
+    "children": [
+      {
+        "id": "flow_amount",
+        "name": "flow_amount",
+        "label": "Flow Amount",
+        "help_text": "How much the colours swirl and flow. 0 = round even blobs; high = strong marbled, flowing forms.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "flow_angle",
+        "name": "flow_angle",
+        "label": "Flow Angle",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 360,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "definition",
+        "name": "definition",
+        "label": "Shape Definition",
+        "help_text": "Edge softness of each colour. Low = soft all-over wash; high = sharp, defined ribbons of colour.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 40
+      },
+      {
+        "id": "spread",
+        "name": "spread",
+        "label": "Colour Spread",
+        "help_text": "How much of the canvas the colours cover.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 50
+      },
+      {
+        "id": "sheen",
+        "name": "sheen",
+        "label": "Satin Sheen",
+        "help_text": "A slow, flowing brightness variation so the colours catch the light like satin. 0 = flat.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "grain",
+        "name": "grain",
+        "label": "Film Grain",
+        "help_text": "Subtle per-pixel speckle. 0 = off.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "dominant_bg",
+        "name": "dominant_bg",
+        "label": "Dominant Background Colour",
+        "help_text": "When on, colour 1 fills most of the canvas for a moodier look with more dark negative space.",
+        "type": "boolean",
+        "display": "toggle",
+        "default": false
+      }
+    ]
+  },
+
+  {
+    "id": "glass",
+    "name": "glass",
+    "label": "Glass Refraction (Fluted)",
+    "type": "group",
+    "expanded": true,
+    "children": [
+      {
+        "id": "glass_type",
+        "name": "glass_type",
+        "label": "Glass Effect",
+        "type": "choice",
+        "display": "select",
+        "choices": [
+          ["none", "None (plain gradient)"],
+          ["fluted", "Fluted (reeded glass)"]
+        ],
+        "default": "fluted"
+      },
+      {
+        "id": "refract_strength",
+        "name": "refract_strength",
+        "label": "Refraction Strength",
+        "help_text": "How far the colours are bent. Must be above 0 for the fluted effect to show.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 30,
+        "visibility": { "controlling_field": "glass.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
+      },
+      {
+        "id": "rib_count",
+        "name": "rib_count",
+        "label": "Rib Count",
+        "type": "number",
+        "display": "slider",
+        "min": 10,
+        "max": 120,
+        "step": 1,
+        "default": 40,
+        "visibility": { "controlling_field": "glass.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
+      },
+      {
+        "id": "rib_angle",
+        "name": "rib_angle",
+        "label": "Rib Angle",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 180,
+        "step": 1,
+        "default": 90,
+        "visibility": { "controlling_field": "glass.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
+      },
+      {
+        "id": "rib_sharp",
+        "name": "rib_sharp",
+        "label": "Rib Sharpness",
+        "help_text": "0 = soft, rounded flutes; higher flattens them toward flat facets.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 0,
+        "visibility": { "controlling_field": "glass.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
+      },
+      {
+        "id": "rib_hi_width",
+        "name": "rib_hi_width",
+        "label": "Highlight Width",
+        "help_text": "How far the highlight on the right of each flute reaches in from the edge.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 25,
+        "visibility": { "controlling_field": "glass.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
+      },
+      {
+        "id": "rib_hi_strength",
+        "name": "rib_hi_strength",
+        "label": "Highlight Strength",
+        "help_text": "How bright the right-side highlight gets. Scales with the colour behind the glass.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 40,
+        "visibility": { "controlling_field": "glass.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
+      },
+      {
+        "id": "rib_sh_width",
+        "name": "rib_sh_width",
+        "label": "Shadow Width",
+        "help_text": "How far the shadow on the left of each flute reaches in from the edge.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 50,
+        "visibility": { "controlling_field": "glass.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
+      },
+      {
+        "id": "rib_sh_strength",
+        "name": "rib_sh_strength",
+        "label": "Shadow Strength",
+        "help_text": "How dark the left-side shadow gets.",
+        "type": "number",
+        "display": "slider",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 60,
+        "visibility": { "controlling_field": "glass.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
+      }
+    ]
+  },
+
+  {
+    "id": "layout",
+    "name": "layout",
+    "label": "Layout",
+    "help_text": "A background module needs a height to render into.",
+    "type": "group",
+    "expanded": false,
     "children": [
       {
         "id": "height",
         "name": "height",
         "label": "Height (px)",
-        "help_text": "Height of the background area. The animation fills this box.",
         "type": "number",
         "display": "text",
         "min": 100,
@@ -57,7 +350,7 @@
         "label": "Overlay colour",
         "type": "color",
         "default": { "color": "#000000", "opacity": 35 },
-        "visibility": { "controlling_field": "layout_group.show_overlay", "controlling_value_regex": "true", "operator": "EQUAL" }
+        "visibility": { "controlling_field": "layout.show_overlay", "controlling_value_regex": "true", "operator": "EQUAL" }
       },
       {
         "id": "content",
@@ -65,267 +358,6 @@
         "label": "Content over the background (optional)",
         "type": "richtext",
         "default": ""
-      }
-    ]
-  },
-
-  {
-    "id": "wash_group",
-    "name": "wash_group",
-    "label": "Wash gradient",
-    "type": "group",
-    "expanded": true,
-    "children": [
-      {
-        "id": "speed",
-        "name": "speed",
-        "label": "Animation speed",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 30,
-        "step": 1,
-        "default": 5
-      },
-      {
-        "id": "amplitude",
-        "name": "amplitude",
-        "label": "Wave amount",
-        "help_text": "How much the gradient flexes vertically.",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 800,
-        "step": 10,
-        "default": 100
-      },
-      {
-        "id": "density",
-        "name": "density",
-        "label": "Detail / density",
-        "type": "number",
-        "display": "slider",
-        "min": 1,
-        "max": 20,
-        "step": 1,
-        "default": 6
-      },
-      {
-        "id": "flow_amount",
-        "name": "flow_amount",
-        "label": "Flow amount",
-        "help_text": "0 = round blobs; higher = marbled, flowing forms.",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 0
-      },
-      {
-        "id": "flow_angle",
-        "name": "flow_angle",
-        "label": "Flow angle",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 360,
-        "step": 1,
-        "default": 0
-      },
-      {
-        "id": "definition",
-        "name": "definition",
-        "label": "Definition",
-        "help_text": "Softness of the colour edges. Lower = softer.",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 40
-      },
-      {
-        "id": "spread",
-        "name": "spread",
-        "label": "Colour spread",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 50
-      },
-      {
-        "id": "sheen",
-        "name": "sheen",
-        "label": "Satin sheen",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 0
-      },
-      {
-        "id": "grain",
-        "name": "grain",
-        "label": "Film grain",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 0
-      },
-      {
-        "id": "darken_top",
-        "name": "darken_top",
-        "label": "Darken top",
-        "type": "boolean",
-        "display": "toggle",
-        "default": false
-      },
-      {
-        "id": "dominant_bg",
-        "name": "dominant_bg",
-        "label": "Dominant background colour",
-        "help_text": "Let colour 1 take over most of the canvas.",
-        "type": "boolean",
-        "display": "toggle",
-        "default": false
-      },
-      {
-        "id": "seed",
-        "name": "seed",
-        "label": "Pattern seed",
-        "help_text": "Change for a different random arrangement of the same colours.",
-        "type": "number",
-        "display": "text",
-        "min": 1,
-        "max": 100,
-        "step": 1,
-        "default": 5
-      }
-    ]
-  },
-
-  {
-    "id": "glass_group",
-    "name": "glass_group",
-    "label": "Glass effect",
-    "type": "group",
-    "expanded": true,
-    "children": [
-      {
-        "id": "glass_type",
-        "name": "glass_type",
-        "label": "Glass effect",
-        "type": "choice",
-        "display": "select",
-        "choices": [
-          ["none", "None (plain gradient)"],
-          ["fluted", "Fluted glass (reeded ribs)"]
-        ],
-        "default": "none"
-      },
-      {
-        "id": "refract_strength",
-        "name": "refract_strength",
-        "label": "Refraction strength",
-        "help_text": "Must be above 0 for the fluted effect to show.",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 30,
-        "visibility": { "controlling_field": "glass_group.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
-      },
-      {
-        "id": "rib_count",
-        "name": "rib_count",
-        "label": "Rib count",
-        "type": "number",
-        "display": "slider",
-        "min": 5,
-        "max": 120,
-        "step": 1,
-        "default": 40,
-        "visibility": { "controlling_field": "glass_group.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
-      },
-      {
-        "id": "rib_angle",
-        "name": "rib_angle",
-        "label": "Rib angle",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 180,
-        "step": 1,
-        "default": 90,
-        "visibility": { "controlling_field": "glass_group.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
-      },
-      {
-        "id": "rib_sharp",
-        "name": "rib_sharp",
-        "label": "Rib sharpness",
-        "help_text": "0 = soft round flutes; higher = flatter faceted ribs.",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 0,
-        "visibility": { "controlling_field": "glass_group.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
-      },
-      {
-        "id": "rib_hi_width",
-        "name": "rib_hi_width",
-        "label": "Highlight width",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 25,
-        "visibility": { "controlling_field": "glass_group.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
-      },
-      {
-        "id": "rib_hi_strength",
-        "name": "rib_hi_strength",
-        "label": "Highlight strength",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 40,
-        "visibility": { "controlling_field": "glass_group.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
-      },
-      {
-        "id": "rib_sh_width",
-        "name": "rib_sh_width",
-        "label": "Shadow width",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 50,
-        "visibility": { "controlling_field": "glass_group.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
-      },
-      {
-        "id": "rib_sh_strength",
-        "name": "rib_sh_strength",
-        "label": "Shadow strength",
-        "type": "number",
-        "display": "slider",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "default": 60,
-        "visibility": { "controlling_field": "glass_group.glass_type", "controlling_value_regex": "fluted", "operator": "EQUAL" }
       }
     ]
   }
