@@ -26,7 +26,6 @@
 
   <script type="application/json" class="kdna-bg-config">{
     "colours": [{% for item in module.colours %}"{{ item.colour.color }}"{% if not loop.last %},{% endif %}{% endfor %}],
-    "colourWeights": [{% for item in module.colours %}{{ item.weight|default(0) }}{% if not loop.last %},{% endif %}{% endfor %}],
     "shapeStyle": "wash",
     "speed": {{ anim.speed|default(5) }},
     "amplitude": {{ anim.amplitude|default(320) }},

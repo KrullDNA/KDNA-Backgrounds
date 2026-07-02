@@ -3,13 +3,13 @@
     "id": "colours",
     "name": "colours",
     "label": "Gradient Colours",
-    "help_text": "Two or more colours blended into the Wash gradient. Drag to reorder. The % sets how much of the mix each colour takes up (not its opacity); a higher % fills more of the background. Values are balanced automatically, so they need not add up to 100.",
+    "help_text": "Two or more colours blended into the Wash gradient. Drag to reorder. Colour 1 is the dominant background.",
     "type": "group",
     "occurrence": { "min": 2, "max": 10, "default": 3, "sorting_label_field": "colours.colour" },
     "default": [
-      { "colour": { "color": "#0a2463", "opacity": 100 }, "weight": 40 },
-      { "colour": { "color": "#1e6bff", "opacity": 100 }, "weight": 35 },
-      { "colour": { "color": "#3d8bff", "opacity": 100 }, "weight": 25 }
+      { "colour": { "color": "#0a2463", "opacity": 100 } },
+      { "colour": { "color": "#1e6bff", "opacity": 100 } },
+      { "colour": { "color": "#3d8bff", "opacity": 100 } }
     ],
     "children": [
       {
@@ -18,18 +18,6 @@
         "label": "Colour",
         "type": "color",
         "default": { "color": "#1e6bff", "opacity": 100 }
-      },
-      {
-        "id": "colours.weight",
-        "name": "weight",
-        "label": "% of mix",
-        "type": "number",
-        "display": "text",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "suffix": "%",
-        "default": 25
       }
     ]
   },
